@@ -1,3 +1,5 @@
+#v1.0
+
 import sys
 
 import config
@@ -14,3 +16,7 @@ if len(configs) == 0:
     print("No configs found for " + tf)
     exit()
 
+for conf in configs:
+    user = utils.get_user(conf['user_id'])
+    account = utils.get_account(conf['account_id'])
+    ohlc = utils.get_ohlc(conf)

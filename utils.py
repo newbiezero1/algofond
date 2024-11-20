@@ -1,6 +1,9 @@
 import config
 from db import Database
 
+users = {}
+accounts = {}
+
 def find_configs(tf: str) -> list:
     res = db.execute_query(f'select * from configs where tf = "{tf}"')
     configs = []
@@ -27,11 +30,43 @@ def find_configs(tf: str) -> list:
             "rsi_tp_long": row[18],
             "rsi_tp_short": row[19],
             "force_rsi_tp_for_long": row[20],
-            "force_rsi_tp_for_short": row[21]
+            "force_rsi_tp_for_short": row[21],
+            "tf": row[22]
         }
         configs.append(config)
     return configs
 
+def get_user(user_id):
+    if not user_id in users:
+        res = db.execute_query(f'select * from users where id = "{user_id}"')
+        row = res[0]
+        user = {"id": row[0],
+                "name": row[1],
+                "tg_chat_id": row[2]
+                }
+        users[user_id] = user
+    else:
+        user = users[user_id]
+    return user
+
+def get_account(account_id):
+    if not account_id in accounts:
+        res = db.execute_query(f'select * from accounts where id = "{account_id}"')
+        row = res[0]
+        account = {"id": row[0],
+                "user_id": row[1],
+                "name": row[2],
+                "api_key": row[3],
+                "api_secret": row[4],
+                "exchange": row[5],
+                }
+        accounts[account_id] = account
+    else:
+        account = accounts[account_id]
+    return account
+
+def get_ohlc(conf):
+    None
 
 db = Database(config.db_name)
 db.connect()
