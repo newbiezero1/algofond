@@ -48,6 +48,9 @@ for conf in configs:
     utils.log('HIGH: ' + str(high))
     utils.log('LOW: ' + str(low))
 
+    exchange = utils.get_exchange(account)
+    positions = exchange.get_open_positions()
+
     have_long = False
     have_short = False
 

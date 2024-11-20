@@ -3,6 +3,7 @@ import pandas as pd
 
 import config
 from db import Database
+from bybit import Bybit
 
 users = {}
 accounts = {}
@@ -142,6 +143,10 @@ def calculate_bearSignal(v_fastEMA, v_slowEMA):
         if v_fastEMA[i - 1] > v_slowEMA[i - 1] and v_fastEMA[i] < v_slowEMA[i]:
             bearSignal[i] = True
     return bearSignal
+
+def get_exchange(account):
+    if account['exchange'] == 'bybit':
+        return Bybit(account['api_key'], account['api_secret'])
 
 db = Database(config.db_name)
 db.connect()
