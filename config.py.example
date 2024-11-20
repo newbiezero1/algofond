@@ -1,0 +1,3 @@
+db_name = 'algo.db'
+
+tg_api_key = "<>"
