@@ -198,6 +198,7 @@ def open_pos(exchange, user, coin, side):
 
 def close_pos(exchange, user, coin, side):
     positions = exchange.get_open_positions(coin)
+    if(len(positions) == 0): return None
     position = positions[0]
     qty = float(position['size'])
     if qty > 0:
