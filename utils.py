@@ -1,10 +1,14 @@
 import requests
+import pandas as pd
 
 import config
 from db import Database
 
 users = {}
 accounts = {}
+
+def log(message: str)-> None:
+    print(message)
 
 def find_configs(tf: str) -> list:
     res = db.execute_query(f'select * from configs where tf = "{tf}"')
@@ -79,6 +83,14 @@ def get_ohlc(conf):
                 "close": line[4]}
         ohlc.append(data)
     return ohlc
+
+def calculate_ema(ohlc, period):
+    prices = []
+    for line in ohlc:
+        prices.append(line["close"])
+    prices_series = pd.Series(prices)
+    ema = prices_series.ewm(span=period, adjust=False).mean()
+    return ema.tolist()
 
 db = Database(config.db_name)
 db.connect()
