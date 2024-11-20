@@ -1,3 +1,5 @@
+import requests
+
 import config
 from db import Database
 
@@ -66,7 +68,17 @@ def get_account(account_id):
     return account
 
 def get_ohlc(conf):
-    None
+    limit = conf["filter_ema"] + 50;
+    response = requests.get(f'https://fapi.binance.com/fapi/v1/klines?symbol={conf["coin"]}USDT&interval={conf["tf"]}&limit={limit}')
+    kline = response.json()
+    ohlc = []
+    for line in kline:
+        data = {"open": line[1],
+                "high": line[2],
+                "low": line[3],
+                "close": line[4]}
+        ohlc.append(data)
+    return ohlc
 
 db = Database(config.db_name)
 db.connect()
