@@ -30,3 +30,6 @@ for conf in configs:
     utils.log('EMA fast: ' + str(v_fastEMA[-1]))
     utils.log('EMA slow: ' + str(v_slowEMA[-1]))
     utils.log('EMA filter: ' + str(v_filterEMA[-1]))
+
+    rsi = utils.calculate_rsi(ohlc, 14)
+    utils.log('RSI: ' + str(rsi[-1]))

@@ -92,5 +92,36 @@ def calculate_ema(ohlc, period):
     ema = prices_series.ewm(span=period, adjust=False).mean()
     return ema.tolist()
 
+def calculate_rsi(ohlc, period):
+    prices = []
+    for line in ohlc:
+        prices.append(line["close"])
+
+    prices_series = pd.Series(prices).astype(float)
+
+    # Расчет изменения цен
+    delta = prices_series.diff()
+
+    # Вычисление прироста и убытка
+    gain = delta.where(delta > 0, 0)  # Прирост
+    loss = -delta.where(delta < 0, 0)  # Убыток (в положительных значениях)
+
+    # Вычисление средних прироста и убытка за период
+    avg_gain_initial = gain.rolling(window=period, min_periods=period).mean()
+    avg_loss_initial = loss.rolling(window=period, min_periods=period).mean()
+
+    # После первого периода используем формулу EMA для среднего прироста и убытка
+    avg_gain = pd.concat([avg_gain_initial.iloc[:period], gain[period:].ewm(alpha=1 / period, adjust=False).mean()])
+    avg_loss = pd.concat([avg_loss_initial.iloc[:period], loss[period:].ewm(alpha=1 / period, adjust=False).mean()])
+
+    # Рассчет RS (отношение средних прироста к среднему убытку)
+    rs = avg_gain / avg_loss
+
+    # Рассчет RSI
+    rsi = 100 - (100 / (1 + rs))
+
+    # Возвращаем RSI в виде списка, где значения до периода заполнены NaN
+    return rsi.tolist()
+
 db = Database(config.db_name)
 db.connect()
