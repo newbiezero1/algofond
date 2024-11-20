@@ -22,7 +22,7 @@ class Notifyer:
 
     def send_open_pos(self, log, order):
         self.send_message(log, True, False)
-        self.send_message(f'*OPEN POS*\n' + order['result'], True, False)
+        self.send_message(f'*POS*\n' + order['result'], True, False)
 
     def send_error(self, message: str) -> None:
         message = f'''*ERROR:*\n {message}'''

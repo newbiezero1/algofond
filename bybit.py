@@ -64,3 +64,24 @@ class Bybit:
         order["orderId"] = result["result"]["orderId"]
         order["price"] = "market"
         return order
+
+    def close_position(self, coin, qty, side):
+        order = {"symbol": f'{coin}USDT', "side": side, "orderType": "Market"}
+        order['qty'] = qty
+        try:
+            result = self.session.place_order(category="linear",
+                                              symbol=order["symbol"],
+                                              side=order["side"],
+                                              orderType=order["orderType"],
+                                              qty=order["qty"],
+                                              reduceOnly=True)
+        except Exception as e:
+            self.error(e)
+            return {}
+        if result["retCode"] != 0:
+            self.error(result["retMsg"])
+            return {}
+        order["result"] = result["retMsg"]
+        order["orderId"] = result["result"]["orderId"]
+        order["price"] = "market"
+        return order
