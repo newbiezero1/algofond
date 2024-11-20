@@ -24,6 +24,13 @@ class Bybit:
         balance = float(wallet_balance["result"]["list"][0]["coin"][0]["walletBalance"])
         return balance
 
+    def get_current_price(self, coin) -> None:
+        """Get symbol current price"""
+        data = self.session.get_mark_price_kline(symbol=f'{coin}USDT', category="linear", interval=1, limit=1)
+        if data["retCode"] != 0:
+            self.error(f'Cant receive market data: *{coin}*')
+        return float(data["result"]["list"][0][4])
+
     def get_open_positions(self, coin="USDT") -> list:
         """Get all open position"""
         try:
@@ -33,3 +40,27 @@ class Bybit:
         if result["retCode"] != 0:
             self.error(f'Warning get position: {result["retMsg"]}')
         return result["result"]["list"]
+
+    def make_market_order(self, coin, side, qty) -> dict:
+        """Send market order"""
+        pos_side = 'Buy'
+        if side == 'short':
+            pos_side = 'Sell'
+        order = {"symbol": f'{coin}USDT', "side": pos_side, "orderType": "Market"}
+        order['qty'] = qty
+        try:
+            result = self.session.place_order(category="linear",
+                                              symbol=order["symbol"],
+                                              side=order["side"],
+                                              orderType=order["orderType"],
+                                              qty=order["qty"])
+        except Exception as e:
+            self.error(e)
+            return {}
+        if result["retCode"] != 0:
+            self.error(result["retMsg"])
+            return {}
+        order["result"] = result["retMsg"]
+        order["orderId"] = result["result"]["orderId"]
+        order["price"] = "market"
+        return order

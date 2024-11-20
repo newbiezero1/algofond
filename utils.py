@@ -1,15 +1,27 @@
 import requests
 import pandas as pd
+import json
 
 import config
 from db import Database
 from bybit import Bybit
+from notifyer import Notifyer
 
 users = {}
 accounts = {}
 
+log_tmp = ''
+
 def log(message: str)-> None:
+    global log_tmp
+    log_tmp += message + '\n'
     print(message)
+
+def extract_log():
+    global log_tmp
+    tmp_log = log_tmp
+    log_tmp = ''
+    return tmp_log
 
 def find_configs(tf: str) -> list:
     res = db.execute_query(f'select * from configs where tf = "{tf}"')
@@ -147,6 +159,42 @@ def calculate_bearSignal(v_fastEMA, v_slowEMA):
 def get_exchange(account):
     if account['exchange'] == 'bybit':
         return Bybit(account['api_key'], account['api_secret'])
+
+def get_minqty(coin):
+    with open('coins.json') as f:
+        data = f.read().strip()
+
+    list = json.loads(data)
+    for item in list['result']:
+        if item['name'] == f'{coin}USDT':
+            minqty = str(float(item['lot_size_filter']['min_trading_qty']))
+            break
+
+    return len(minqty.split('.')[1])
+
+def set_minqty(coin):
+    with open('coins.json') as f:
+        data = f.read().strip()
+
+    list = json.loads(data)
+    for item in list['result']:
+        if item['name'] == f'{coin}USDT':
+            minqty = str(float(item['lot_size_filter']['min_trading_qty']))
+            break
+
+    return minqty
+
+def open_pos(exchange, user, coin, side):
+    dep = float(exchange.get_balance())
+    current_price = float(exchange.get_current_price(coin))
+    qty = dep/current_price
+    qty = round(qty, get_minqty(coin))
+    if qty == 0:
+        qty = set_minqty(coin)
+    res = exchange.make_market_order(coin, side, qty)
+    notifyer = Notifyer(user["tg_chat_id"])
+    notifyer.send_open_pos(extract_log(), res)
+    return None
 
 db = Database(config.db_name)
 db.connect()
