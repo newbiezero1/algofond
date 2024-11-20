@@ -86,7 +86,11 @@ def get_account(account_id):
 
 def get_ohlc(conf):
     limit = conf["filter_ema"] + 50;
-    response = requests.get(f'https://fapi.binance.com/fapi/v1/klines?symbol={conf["coin"]}USDT&interval={conf["tf"]}&limit={limit}')
+    interval = conf['tf']
+    if conf['tf'] == '10m':
+        interval = '5m'
+        limit = limit * 2
+    response = requests.get(f'https://fapi.binance.com/fapi/v1/klines?symbol={conf["coin"]}USDT&interval={interval}&limit={limit}')
     kline = response.json()
     ohlc = []
     for line in kline:
@@ -95,6 +99,18 @@ def get_ohlc(conf):
                 "low": line[3],
                 "close": line[4]}
         ohlc.append(data)
+    if conf['tf'] == '10m':
+        ohlc_10m = []
+        for i in range(0, len(ohlc), 2):
+            if i + 1 < len(ohlc):
+                combined = {
+                    "open": ohlc[i]["open"],
+                    "high": max(ohlc[i]["high"], ohlc[i + 1]["high"]),
+                    "low": min(ohlc[i]["low"], ohlc[i + 1]["low"]),
+                    "close": ohlc[i + 1]["close"]
+                }
+                ohlc_10m.append(combined)
+        return ohlc_10m
     return ohlc
 
 def calculate_ema(ohlc, period):
