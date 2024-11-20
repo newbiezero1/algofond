@@ -24,10 +24,10 @@ class Bybit:
         balance = float(wallet_balance["result"]["list"][0]["coin"][0]["walletBalance"])
         return balance
 
-    def get_open_positions(self) -> list:
+    def get_open_positions(self, coin="USDT") -> list:
         """Get all open position"""
         try:
-            result = self.session.get_positions(category="linear", settleCoin="USDT")
+            result = self.session.get_positions(category="linear", baseCoin=coin, settleCoin='USDT')
         except Exception as e:
             self.error(f'Error get position: {e}')
         if result["retCode"] != 0:

@@ -49,10 +49,48 @@ for conf in configs:
     utils.log('LOW: ' + str(low))
 
     exchange = utils.get_exchange(account)
-    positions = exchange.get_open_positions()
+    positions = exchange.get_open_positions(conf['coin'])
+    if len(positions) > 0:
+        position = positions[0]
+        utils.log('CURRENT POSITION SIDE: ' + str(position['side']))
+        utils.log('CURRENT POSITION AVG: ' + str(position['avgPrice']))
+
+        if conf['force_rsi_tp_for_long'] and rsi >= conf['rsi_tp_long']:
+            utils.log('Close Long RSI Force TP triggered - Closing Long')
+
+        if conf['force_rsi_tp_for_short'] and rsi <= conf['rsi_tp_short']:
+            utils.log('Close Short RSI Force TP triggered - Closing Short')
+
+        if conf['tp_on']:
+            if position['side'] == 'Buy':
+                long_take_profit = float(position['avgPrice']) * (1 + float(conf['tp'])/100)
+                if float(high) >= long_take_profit:
+                    utils.log('Close Long Setted TP triggered - Closing Long')
+            else:
+                short_take_profit = float(position['avgPrice']) * (1 - float(conf['tp'])/100)
+                if float(low) <= short_take_profit:
+                    utils.log('Close Short Setted TP triggered - Closing Short')
+
+        if conf['sl_on']:
+            if position['side'] == 'Buy':
+                long_stop_loss = float(position['avgPrice']) * (1 - float(conf['sl'])/100)
+                if float(low) <= long_stop_loss:
+                    utils.log('Close Long Setted SL triggered - Closing Long')
+            else:
+                short_stop_loss = float(position['avgPrice']) * (1 + float(conf['sl'])/100)
+                if float(high) >= short_stop_loss:
+                    utils.log('Close Short Setted SL triggered - Closing Short')
+
 
     have_long = False
     have_short = False
+    positions = exchange.get_open_positions(conf['coin'])
+    if len(positions) > 0:
+        position = positions[0]
+        if position['side'] == 'Buy':
+            have_long = True
+        else:
+            have_short = True
 
     # check open conditions
     if conf['enable_long'] and bullSignal and (not conf['filter_ema_on'] or close > v_filterEMA):
