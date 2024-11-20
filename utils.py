@@ -123,5 +123,25 @@ def calculate_rsi(ohlc, period):
     # Возвращаем RSI в виде списка, где значения до периода заполнены NaN
     return rsi.tolist()
 
+def calculate_bullSignal(v_fastEMA, v_slowEMA):
+    bullSignal = []
+    for i in range(len(v_fastEMA)):
+        bullSignal.append(False)
+        if i == 0:
+            continue
+        if v_fastEMA[i - 1] < v_slowEMA[i - 1] and v_fastEMA[i] > v_slowEMA[i]:
+            bullSignal[i] = True
+    return bullSignal
+
+def calculate_bearSignal(v_fastEMA, v_slowEMA):
+    bearSignal = []
+    for i in range(len(v_fastEMA)):
+        bearSignal.append(False)
+        if i == 0:
+            continue
+        if v_fastEMA[i - 1] > v_slowEMA[i - 1] and v_fastEMA[i] < v_slowEMA[i]:
+            bearSignal[i] = True
+    return bearSignal
+
 db = Database(config.db_name)
 db.connect()

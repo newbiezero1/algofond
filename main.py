@@ -33,3 +33,9 @@ for conf in configs:
 
     rsi = utils.calculate_rsi(ohlc, 14)
     utils.log('RSI: ' + str(rsi[-1]))
+
+    bullSignal = utils.calculate_bullSignal(v_fastEMA, v_slowEMA)[-2]
+    bearSignal = utils.calculate_bearSignal(v_fastEMA, v_slowEMA)[-2]
+
+    utils.log('Bull Signal: ' + str(bullSignal))
+    utils.log('Bear Signal: ' + str(bearSignal))
