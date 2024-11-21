@@ -24,6 +24,7 @@ class Notifyer:
         self.send_message(log, True, False)
         self.send_message(f'*POS*\n' + order['result'], True, False)
 
-    def send_error(self, message: str) -> None:
+    def send_error(self, log, message: str) -> None:
+        self.send_message(log, True, False)
         message = f'''*ERROR:*\n {message}'''
         self.send_message(message, markdown=False)

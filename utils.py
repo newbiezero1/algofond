@@ -204,12 +204,19 @@ def open_pos(exchange, user, coin, side):
     dep = float(exchange.get_balance())
     current_price = float(exchange.get_current_price(coin))
     qty = dep/current_price
-    qty = round(qty, get_minqty(coin))
+    roundC = get_minqty(coin)
+    if get_minqty(coin) >=1 :
+        roundC=0
+    qty = round(qty, roundC)
+
     if qty == 0:
         qty = set_minqty(coin)
     res = exchange.make_market_order(coin, side, qty)
     notifyer = Notifyer(user["tg_chat_id"])
-    notifyer.send_open_pos(extract_log(), res)
+    if exchange.api_error_flag:
+        notifyer.send_error(extract_log(), exchange.api_error_msg)
+    else:
+        notifyer.send_open_pos(extract_log(), res)
     return None
 
 def close_pos(exchange, user, coin, side):
