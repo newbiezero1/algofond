@@ -102,13 +102,7 @@ for conf in configs:
 
     # check open conditions
     if conf['enable_long'] and bullSignal and (not conf['filter_ema_on'] or float(close) > float(v_filterEMA)):
-        if conf['rsi_protection_for_long'] and float(rsi) > float(conf['high_rsi']):
-            utils.log('CLOSE LONG, No Long - RSI Protection')
-            utils.close_pos(exchange, user, conf['coin'], 'long')
-        elif conf['filter_ema_on'] and float(close) <= float(v_filterEMA):
-            utils.log('CLOSE LONG, No Long - Filter EMA Protection')
-            utils.close_pos(exchange, user, conf['coin'], 'long')
-        else:
+        if not conf['rsi_protection_for_long'] or float(rsi) <= float(conf['high_rsi']):
             utils.log('CLOSE SHORT for LONG')
             utils.close_pos(exchange, user, conf['coin'], 'short')
             if not have_long:
@@ -116,13 +110,7 @@ for conf in configs:
                 utils.open_pos(exchange, user, conf['coin'], 'long')
 
     if conf['enable_short'] and bearSignal and (not conf['filter_ema_on'] or float(close) < float(v_filterEMA)):
-        if conf['rsi_protection_for_short'] and float(rsi) < float(conf['low_rsi']):
-            utils.log('CLOSE SHORT, No Short - RSI Protection')
-            utils.close_pos(exchange, user, conf['coin'], 'short')
-        elif conf['filter_ema_on'] and float(close) >= float(v_filterEMA):
-            utils.log('CLOSE SHORT, No Short - Filter EMA Protection')
-            utils.close_pos(exchange, user, conf['coin'], 'short')
-        else:
+        if not conf['rsi_protection_for_short'] and float(rsi) >= float(conf['low_rsi']):
             utils.log('CLOSE LONG for SHORT')
             utils.close_pos(exchange, user, conf['coin'], 'long')
             if not have_short:
