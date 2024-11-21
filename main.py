@@ -31,7 +31,7 @@ for conf in configs:
     utils.log('EMA slow: ' + str(v_slowEMA[-1]))
     utils.log('EMA filter: ' + str(v_filterEMA))
 
-    rsi = utils.calculate_rsi(ohlc, 14)[-1]
+    rsi = utils.calculate_rsi(ohlc, 14)[-2]
     utils.log('RSI: ' + str(rsi))
 
     bullSignal = utils.calculate_bullSignal(v_fastEMA, v_slowEMA)[-2]
