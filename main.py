@@ -17,6 +17,7 @@ if len(configs) == 0:
     exit()
 
 for conf in configs:
+    utils.extract_log()
     user = utils.get_user(conf['user_id'])
     account = utils.get_account(conf['account_id'])
     utils.log('START ' + conf['coin'] + ' for ' + user['name'] + ' on ' + account['name'] + '')
