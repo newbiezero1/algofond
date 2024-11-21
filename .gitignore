@@ -2,3 +2,4 @@
 config.py
 algo.db
 .idea/*
+log.txt
