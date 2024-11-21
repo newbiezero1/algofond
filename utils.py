@@ -233,10 +233,16 @@ def close_pos(exchange, user, coin, side):
         notifyer = Notifyer(user["tg_chat_id"])
         if position['side'] == 'Buy' and side == 'long':
             res = exchange.close_position(coin, qty, 'Sell')
-            notifyer.send_open_pos(extract_log(), res)
+            if exchange.api_error_flag:
+                notifyer.send_error(extract_log(), exchange.api_error_msg)
+            else:
+                notifyer.send_open_pos(extract_log(), res)
         elif position['side'] == 'Sell' and side == 'short':
             res = exchange.close_position(coin, qty, 'Buy')
-            notifyer.send_open_pos(extract_log(), res)
+            if exchange.api_error_flag:
+                notifyer.send_error(extract_log(), exchange.api_error_msg)
+            else:
+                notifyer.send_open_pos(extract_log(), res)
 
 db = Database(config.db_name)
 db.connect()
