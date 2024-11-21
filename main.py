@@ -20,7 +20,7 @@ for conf in configs:
     utils.extract_log()
     user = utils.get_user(conf['user_id'])
     account = utils.get_account(conf['account_id'])
-    utils.log('START ' + conf['coin'] + ' for ' + user['name'] + ' on ' + account['name'] + '')
+    utils.log('\n=====START ' + conf['coin'] + ' for ' + user['name'] + ' on ' + account['name'] + '=====')
 
     ohlc = utils.get_ohlc(conf)
 
