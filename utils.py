@@ -55,7 +55,9 @@ def find_configs(tf: str) -> list:
             "rsi_tp_short": row[19],
             "force_rsi_tp_for_long": row[20],
             "force_rsi_tp_for_short": row[21],
-            "tf": row[22]
+            "tf": row[22],
+            "use_reversal": row[23],
+            "reversal_count": row[24],
         }
         configs.append(config)
     return configs

@@ -20,17 +20,17 @@ for conf in configs:
     utils.extract_log()
     user = utils.get_user(conf['user_id'])
     account = utils.get_account(conf['account_id'])
-    utils.log('\n=====START ' + conf['coin'] + ' for ' + user['name'] + ' on ' + account['name'] + '=====')
+    utils.log('\n=====START ' + conf['coin'] + ' for ' + user['name'] + ' on ' + account['name'] + ' '+ conf['tf']+ ' =====')
 
     ohlc = utils.get_ohlc(conf)
 
     v_fastEMA = utils.calculate_ema(ohlc, conf['fast_ema'])
     v_slowEMA = utils.calculate_ema(ohlc, conf['slow_ema'])
-    v_filterEMA = utils.calculate_ema(ohlc, conf['filter_ema'])[-1]
+    v_filterEMA = utils.calculate_ema(ohlc, conf['filter_ema'])
 
     utils.log('EMA fast: ' + str(round(v_fastEMA[-1],2)))
     utils.log('EMA slow: ' + str(round(v_slowEMA[-1],2)))
-    utils.log('EMA filter: ' + str(round(v_filterEMA,2)))
+    utils.log('EMA filter: ' + str(round(v_filterEMA[-1],2)))
 
     rsi = utils.calculate_rsi(ohlc, 14)[-1]
     utils.log('RSI: ' + str(round(rsi,2)))
@@ -89,6 +89,27 @@ for conf in configs:
                     utils.log('Close Short Setted SL triggered - Closing Short')
                     utils.close_pos(exchange, user, conf['coin'], 'short')
 
+        if conf['use_reversal']:
+            reversal_ohlc = ohlc[len(ohlc)- conf['reversal_count']:]
+            reversal_filter_ema = v_filterEMA[len(v_filterEMA) - conf['reversal_count']:]
+            reversal_counter = 0
+            for i, item in enumerate(reversal_ohlc):
+                if position['side'] == 'Buy':
+                    if float(item['close']) < reversal_filter_ema[i]:
+                        reversal_counter += 1
+                    else:
+                        reversal_counter = 0
+                if position['side'] == 'Sell':
+                    if float(item['close']) > reversal_filter_ema[i]:
+                        reversal_counter += 1
+                    else:
+                        reversal_counter = 0
+            if reversal_counter >= conf['reversal_count']:
+                utils.log('Reclaim EMA SL')
+                if position['side'] == 'Buy':
+                    utils.close_pos(exchange, user, conf['coin'], 'long')
+                else:
+                    utils.close_pos(exchange, user, conf['coin'], 'short')
 
     have_long = False
     have_short = False
@@ -101,7 +122,7 @@ for conf in configs:
             have_short = True
 
     # check open conditions
-    if conf['enable_long'] and bullSignal and (not conf['filter_ema_on'] or float(close) > float(v_filterEMA)):
+    if conf['enable_long'] and bullSignal and (not conf['filter_ema_on'] or float(close) > float(v_filterEMA[-1])):
         if not conf['rsi_protection_for_long'] or float(rsi) <= float(conf['high_rsi']):
             utils.log('CLOSE SHORT for LONG')
             utils.close_pos(exchange, user, conf['coin'], 'short')
@@ -109,7 +130,7 @@ for conf in configs:
                 utils.log('OPEN LONG')
                 utils.open_pos(exchange, user, conf['coin'], 'long')
 
-    if conf['enable_short'] and bearSignal and (not conf['filter_ema_on'] or float(close) < float(v_filterEMA)):
+    if conf['enable_short'] and bearSignal and (not conf['filter_ema_on'] or float(close) < float(v_filterEMA[-1])):
         if not conf['rsi_protection_for_short'] and float(rsi) >= float(conf['low_rsi']):
             utils.log('CLOSE LONG for SHORT')
             utils.close_pos(exchange, user, conf['coin'], 'long')
