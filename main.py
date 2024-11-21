@@ -28,12 +28,12 @@ for conf in configs:
     v_slowEMA = utils.calculate_ema(ohlc, conf['slow_ema'])
     v_filterEMA = utils.calculate_ema(ohlc, conf['filter_ema'])[-1]
 
-    utils.log('EMA fast: ' + str(v_fastEMA[-1]))
-    utils.log('EMA slow: ' + str(v_slowEMA[-1]))
-    utils.log('EMA filter: ' + str(v_filterEMA))
+    utils.log('EMA fast: ' + str(round(v_fastEMA[-1],2)))
+    utils.log('EMA slow: ' + str(round(v_slowEMA[-1],2)))
+    utils.log('EMA filter: ' + str(round(v_filterEMA,2)))
 
     rsi = utils.calculate_rsi(ohlc, 14)[-2]
-    utils.log('RSI: ' + str(rsi))
+    utils.log('RSI: ' + str(round(rsi,2)))
 
     bullSignal = utils.calculate_bullSignal(v_fastEMA, v_slowEMA)[-2]
     bearSignal = utils.calculate_bearSignal(v_fastEMA, v_slowEMA)[-2]
@@ -45,9 +45,9 @@ for conf in configs:
     high = ohlc[-1]["high"]
     low = ohlc[-1]["low"]
 
-    utils.log('CURRENT: ' + str(close))
-    utils.log('HIGH: ' + str(high))
-    utils.log('LOW: ' + str(low))
+    utils.log('CURRENT: ' + str(float(close)))
+    utils.log('HIGH: ' + str(float(high)))
+    utils.log('LOW: ' + str(float(low)))
 
     exchange = utils.get_exchange(account)
     positions = exchange.get_open_positions(conf['coin'])
