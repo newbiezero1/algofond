@@ -4,6 +4,8 @@ import sys
 import os
 import utils
 
+from datetime import datetime
+
 if len(sys.argv) == 1:
     print("Set TF as python main.py 15m")
     exit();
@@ -19,7 +21,9 @@ for conf in configs:
     utils.extract_log()
     user = utils.get_user(conf['user_id'])
     account = utils.get_account(conf['account_id'])
-    utils.log('\n=====START ' + conf['coin'] + ' for ' + user['name'] + ' on ' + account['name'] + ' '+ conf['tf']+ ' =====')
+
+    current_dateTime = datetime.now()
+    utils.log(f'\n====={current_dateTime} START ' + conf['coin'] + ' for ' + user['name'] + ' on ' + account['name'] + ' '+ conf['tf']+ ' =====')
 
     ohlc = utils.get_ohlc(conf)
 

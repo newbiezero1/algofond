@@ -18,9 +18,9 @@ log_tmp = ''
 def log(message: str)-> None:
     global log_tmp
     log_tmp += message + '\n'
-    current_dateTime = datetime.now()
+
     with open('log.txt', "a") as f:
-        f.write(f'\n {current_dateTime} '+str(message))
+        f.write(f'\n'+str(message))
     print(message)
 
 def extract_log():
