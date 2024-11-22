@@ -1,8 +1,6 @@
 #v1.0
 
 import sys
-import matplotlib.pyplot as plt
-import config
 import utils
 
 if len(sys.argv) == 1:
