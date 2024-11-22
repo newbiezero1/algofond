@@ -157,4 +157,5 @@ for conf in configs:
                 utils.log('OPEN SHORT')
                 utils.open_pos(exchange, user, conf['coin'], 'short')
 
+
 os._exit(0)
