@@ -98,6 +98,15 @@ def get_ohlc(conf):
     umnozhitel = 5
     if conf['tf'] == '5m':
         umnozhitel = 5
+    if conf['tf'] == '15m':
+        umnozhitel = 15
+    if conf['tf'] == '30m':
+        umnozhitel = 30
+    if conf['tf'] == '1h':
+        umnozhitel = 60
+    if conf['tf'] == '4h':
+        umnozhitel = 240
+
     if conf['tf'] == '10m':
         interval = '5m'
         limit = limit * 2
