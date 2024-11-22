@@ -51,7 +51,6 @@ for conf in configs:
             last_signal = 'bear'
     magic_rsi_bull = utils.calculate_rsi(signal_ohlc_bull, 14)
     magic_rsi_bear = utils.calculate_rsi(signal_ohlc_bear, 14)
-
     if last_signal == 'bull':
         magic_rsi = magic_rsi_bull[-1]
     elif last_signal == 'bear':
@@ -72,7 +71,6 @@ for conf in configs:
 
     exchange = utils.get_exchange(account)
     positions = exchange.get_open_positions(conf['coin'])
-
     if len(positions) > 0:
         position = positions[0]
         utils.log('CURRENT POSITION SIDE: ' + str(position['side']))
@@ -131,7 +129,6 @@ for conf in configs:
                     utils.close_pos(exchange, user, conf['coin'], 'long')
                 else:
                     utils.close_pos(exchange, user, conf['coin'], 'short')
-
     have_long = False
     have_short = False
     positions = exchange.get_open_positions(conf['coin'])
@@ -141,7 +138,7 @@ for conf in configs:
             have_long = True
         else:
             have_short = True
-
+    utils.close_pos(exchange, user, conf['coin'], 'long')
     # check open conditions
     if conf['enable_long'] and bullSignal and (not conf['filter_ema_on'] or float(close) > float(v_filterEMA[-1])):
         if not conf['rsi_protection_for_long'] or float(magic_rsi) <= float(conf['high_rsi']):
@@ -158,3 +155,5 @@ for conf in configs:
             if not have_short:
                 utils.log('OPEN SHORT')
                 utils.open_pos(exchange, user, conf['coin'], 'short')
+
+sys.exit()

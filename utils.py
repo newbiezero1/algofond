@@ -7,6 +7,7 @@ from datetime import datetime
 import config
 from db import Database
 from bybit import Bybit
+from hyper import Hyper
 from notifyer import Notifyer
 
 users = {}
@@ -225,6 +226,8 @@ def calculate_bearSignal(v_fastEMA, v_slowEMA):
 def get_exchange(account):
     if account['exchange'] == 'bybit':
         return Bybit(account['api_key'], account['api_secret'])
+    if account['exchange'] == 'hyper':
+        return Hyper(account['api_key'], account['api_secret'])
 
 def get_minqty(coin):
     with open('coins.json') as f:
