@@ -92,14 +92,50 @@ def get_account(account_id):
     return account
 
 def get_ohlc(conf):
-    limit = conf["filter_ema"] + 50;
+    limit = 1500;
     interval = conf['tf']
+    umnozhitel = 5
+    if conf['tf'] == '5m':
+        umnozhitel = 5
     if conf['tf'] == '10m':
         interval = '5m'
         limit = limit * 2
+    ohlc = []
+    unix_time = int(datetime.now().timestamp())
+
+    date_start = (unix_time - (limit * umnozhitel * 60) * 4) * 1000
+    response = requests.get(
+        f'https://fapi.binance.com/fapi/v1/klines?symbol={conf["coin"]}USDT&interval={interval}&limit={limit}&startTime={date_start}')
+    kline = response.json()
+    for line in kline:
+        data = {"open": line[1],
+                "high": line[2],
+                "low": line[3],
+                "close": line[4]}
+        ohlc.append(data)
+
+    date_start = (unix_time - (limit * umnozhitel * 60) * 3) * 1000
+    response = requests.get(
+        f'https://fapi.binance.com/fapi/v1/klines?symbol={conf["coin"]}USDT&interval={interval}&limit={limit}&startTime={date_start}')
+    kline = response.json()
+    for line in kline:
+        data = {"open": line[1],
+                "high": line[2],
+                "low": line[3],
+                "close": line[4]}
+        ohlc.append(data)
+
+    date_start = (unix_time - (limit * umnozhitel *60 )*2 ) *1000
+    response = requests.get(f'https://fapi.binance.com/fapi/v1/klines?symbol={conf["coin"]}USDT&interval={interval}&limit={limit}&startTime={date_start}')
+    kline = response.json()
+    for line in kline:
+        data = {"open": line[1],
+                "high": line[2],
+                "low": line[3],
+                "close": line[4]}
+        ohlc.append(data)
     response = requests.get(f'https://fapi.binance.com/fapi/v1/klines?symbol={conf["coin"]}USDT&interval={interval}&limit={limit}')
     kline = response.json()
-    ohlc = []
     for line in kline:
         data = {"open": line[1],
                 "high": line[2],
@@ -157,7 +193,14 @@ def calculate_rsi(ohlc, period):
     rsi = 100 - (100 / (1 + rs))
 
     # Возвращаем RSI в виде списка, где значения до периода заполнены NaN
-    return rsi.tolist()
+    rr = rsi.tolist()
+    rounded_rsi = []
+    for i in rr:
+        if i > 0:
+            rounded_rsi.append(round(i,2))
+        else:
+            rounded_rsi.append(0)
+    return rounded_rsi
 
 def calculate_bullSignal(v_fastEMA, v_slowEMA):
     bullSignal = []

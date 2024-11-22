@@ -1,7 +1,7 @@
 #v1.0
 
 import sys
-
+import matplotlib.pyplot as plt
 import config
 import utils
 
@@ -35,8 +35,29 @@ for conf in configs:
     rsi = utils.calculate_rsi(ohlc, 14)[-1]
     utils.log('RSI: ' + str(round(rsi,2)))
 
-    bullSignal = utils.calculate_bullSignal(v_fastEMA, v_slowEMA)[-2]
-    bearSignal = utils.calculate_bearSignal(v_fastEMA, v_slowEMA)[-2]
+    bullSignalList = utils.calculate_bullSignal(v_fastEMA, v_slowEMA)
+    bearSignalList = utils.calculate_bearSignal(v_fastEMA, v_slowEMA)
+
+    bullSignal = bullSignalList[-2]
+    bearSignal = bearSignalList[-2]
+
+    signal_ohlc_bull = []
+    signal_ohlc_bear = []
+    last_signal = 'bull'
+    for key, value in enumerate(ohlc):
+        if bullSignalList[key] and float(value['close']) > v_filterEMA[key]:
+            signal_ohlc_bull.append(ohlc[key])
+            last_signal = 'bull'
+        if bearSignalList[key] and float(value['close']) < v_filterEMA[key]:
+            signal_ohlc_bear.append(ohlc[key])
+            last_signal = 'bear'
+    magic_rsi_bull = utils.calculate_rsi(signal_ohlc_bull, 14)
+    magic_rsi_bear = utils.calculate_rsi(signal_ohlc_bear, 14)
+
+    if last_signal == 'bull':
+        magic_rsi = magic_rsi_bull[-1]
+    elif last_signal == 'bear':
+        magic_rsi = magic_rsi_bear[-1]
 
     utils.log('Bull Signal: ' + str(bullSignal))
     utils.log('Bear Signal: ' + str(bearSignal))
@@ -45,6 +66,8 @@ for conf in configs:
     high = ohlc[-1]["high"]
     low = ohlc[-1]["low"]
 
+    utils.log('Last signal: ' + str(last_signal))
+    utils.log('Magic RSI: ' + str(round(magic_rsi, 2)))
     utils.log('CURRENT: ' + str(float(close)))
     utils.log('HIGH: ' + str(float(high)))
     utils.log('LOW: ' + str(float(low)))
@@ -123,7 +146,7 @@ for conf in configs:
 
     # check open conditions
     if conf['enable_long'] and bullSignal and (not conf['filter_ema_on'] or float(close) > float(v_filterEMA[-1])):
-        if not conf['rsi_protection_for_long'] or float(rsi) <= float(conf['high_rsi']):
+        if not conf['rsi_protection_for_long'] or float(magic_rsi) <= float(conf['high_rsi']):
             utils.log('CLOSE SHORT for LONG')
             utils.close_pos(exchange, user, conf['coin'], 'short')
             if not have_long:
@@ -131,7 +154,7 @@ for conf in configs:
                 utils.open_pos(exchange, user, conf['coin'], 'long')
 
     if conf['enable_short'] and bearSignal and (not conf['filter_ema_on'] or float(close) < float(v_filterEMA[-1])):
-        if not conf['rsi_protection_for_short'] and float(rsi) >= float(conf['low_rsi']):
+        if not conf['rsi_protection_for_short'] and float(magic_rsi) >= float(conf['low_rsi']):
             utils.log('CLOSE LONG for SHORT')
             utils.close_pos(exchange, user, conf['coin'], 'long')
             if not have_short:
