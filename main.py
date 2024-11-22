@@ -1,6 +1,7 @@
 #v1.0
 
 import sys
+import os
 import utils
 
 if len(sys.argv) == 1:
@@ -156,4 +157,4 @@ for conf in configs:
                 utils.log('OPEN SHORT')
                 utils.open_pos(exchange, user, conf['coin'], 'short')
 
-sys.exit()
+os._exit(0)
