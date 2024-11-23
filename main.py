@@ -161,7 +161,7 @@ for conf in configs:
                     utils.log('OPEN SHORT')
                     utils.open_pos(exchange, user, conf, 'short')
     except Exception as e:
-        utils.log('ERROR: ')
+        utils.log('ERROR: '+str(e))
     utils.extract_log()
 
 os._exit(0)
