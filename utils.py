@@ -92,6 +92,9 @@ def get_account(account_id):
     else:
         account = accounts[account_id]
     return account
+def get_kline_from_db(coin, tf, date):
+    res = db.execute_query(f'select * from ohlc where coin = "{coin}" and tf= "{tf}" and "{date}" > start and "{date}" < end')
+    return res[0][2]
 
 def get_ohlc(conf):
     cache_key = f'{conf["coin"]}_{conf["tf"]}'
@@ -121,9 +124,7 @@ def get_ohlc(conf):
     unix_time = int(datetime.now().timestamp())
     if conf['tf'] == '10m':
         date_start = (unix_time - (limit * umnozhitel * 60) * 11) * 1000
-        response = requests.get(
-            f'https://fapi.binance.com/fapi/v1/klines?symbol={conf["coin"]}USDT&interval={interval}&limit={limit}&startTime={date_start}')
-        kline = response.json()
+        kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
         for line in kline:
             data = {"open": line[1],
                     "high": line[2],
@@ -132,9 +133,7 @@ def get_ohlc(conf):
             ohlc.append(data)
 
         date_start = (unix_time - (limit * umnozhitel * 60) * 10) * 1000
-        response = requests.get(
-            f'https://fapi.binance.com/fapi/v1/klines?symbol={conf["coin"]}USDT&interval={interval}&limit={limit}&startTime={date_start}')
-        kline = response.json()
+        kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
         for line in kline:
             data = {"open": line[1],
                     "high": line[2],
@@ -143,9 +142,7 @@ def get_ohlc(conf):
             ohlc.append(data)
 
         date_start = (unix_time - (limit * umnozhitel * 60) * 9) * 1000
-        response = requests.get(
-            f'https://fapi.binance.com/fapi/v1/klines?symbol={conf["coin"]}USDT&interval={interval}&limit={limit}&startTime={date_start}')
-        kline = response.json()
+        kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
         for line in kline:
             data = {"open": line[1],
                     "high": line[2],
@@ -154,9 +151,7 @@ def get_ohlc(conf):
             ohlc.append(data)
 
         date_start = (unix_time - (limit * umnozhitel * 60) * 8) * 1000
-        response = requests.get(
-            f'https://fapi.binance.com/fapi/v1/klines?symbol={conf["coin"]}USDT&interval={interval}&limit={limit}&startTime={date_start}')
-        kline = response.json()
+        kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
         for line in kline:
             data = {"open": line[1],
                     "high": line[2],
@@ -165,9 +160,7 @@ def get_ohlc(conf):
             ohlc.append(data)
 
         date_start = (unix_time - (limit * umnozhitel * 60) * 7) * 1000
-        response = requests.get(
-            f'https://fapi.binance.com/fapi/v1/klines?symbol={conf["coin"]}USDT&interval={interval}&limit={limit}&startTime={date_start}')
-        kline = response.json()
+        kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
         for line in kline:
             data = {"open": line[1],
                     "high": line[2],
@@ -176,9 +169,7 @@ def get_ohlc(conf):
             ohlc.append(data)
 
         date_start = (unix_time - (limit * umnozhitel * 60) * 6) * 1000
-        response = requests.get(
-            f'https://fapi.binance.com/fapi/v1/klines?symbol={conf["coin"]}USDT&interval={interval}&limit={limit}&startTime={date_start}')
-        kline = response.json()
+        kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
         for line in kline:
             data = {"open": line[1],
                     "high": line[2],
@@ -187,9 +178,7 @@ def get_ohlc(conf):
             ohlc.append(data)
 
         date_start = (unix_time - (limit * umnozhitel * 60) * 5) * 1000
-        response = requests.get(
-            f'https://fapi.binance.com/fapi/v1/klines?symbol={conf["coin"]}USDT&interval={interval}&limit={limit}&startTime={date_start}')
-        kline = response.json()
+        kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
         for line in kline:
             data = {"open": line[1],
                     "high": line[2],
@@ -198,9 +187,7 @@ def get_ohlc(conf):
             ohlc.append(data)
 
     date_start = (unix_time - (limit * umnozhitel * 60) * 4) * 1000
-    response = requests.get(
-        f'https://fapi.binance.com/fapi/v1/klines?symbol={conf["coin"]}USDT&interval={interval}&limit={limit}&startTime={date_start}')
-    kline = response.json()
+    kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
     for line in kline:
         data = {"open": line[1],
                 "high": line[2],
@@ -209,9 +196,7 @@ def get_ohlc(conf):
         ohlc.append(data)
 
     date_start = (unix_time - (limit * umnozhitel * 60) * 3) * 1000
-    response = requests.get(
-        f'https://fapi.binance.com/fapi/v1/klines?symbol={conf["coin"]}USDT&interval={interval}&limit={limit}&startTime={date_start}')
-    kline = response.json()
+    kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
     for line in kline:
         data = {"open": line[1],
                 "high": line[2],
@@ -220,8 +205,7 @@ def get_ohlc(conf):
         ohlc.append(data)
 
     date_start = (unix_time - (limit * umnozhitel *60 )*2 ) *1000
-    response = requests.get(f'https://fapi.binance.com/fapi/v1/klines?symbol={conf["coin"]}USDT&interval={interval}&limit={limit}&startTime={date_start}')
-    kline = response.json()
+    kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
     for line in kline:
         data = {"open": line[1],
                 "high": line[2],
@@ -367,8 +351,8 @@ def open_pos(exchange, user, conf, side):
         tp = float(current_price) * (1 - float(conf['tp']) / 100)
         sl = float(current_price) * (1 + float(conf['sl']) / 100)
 
-    tp = round(tp, roundC)
-    sl = round(sl, roundC)
+    #tp = round(tp, roundC)
+    #sl = round(sl, roundC)
 
     res = exchange.make_market_order(conf['coin'], side, qty, tp,sl)
     notifyer = Notifyer(user["tg_chat_id"])
