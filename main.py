@@ -120,7 +120,6 @@ for conf in configs:
         else:
             have_short = True
 
-    utils.open_pos(exchange, user, conf, 'long')
 
     # check open conditions
     if conf['enable_long'] and bullSignal and (not conf['filter_ema_on'] or float(close) > float(v_filterEMA[-1])):
