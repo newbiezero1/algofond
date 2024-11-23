@@ -67,7 +67,6 @@ for conf in configs:
     close = ohlc[-1]["close"]
     high = ohlc[-1]["high"]
     low = ohlc[-1]["low"]
-
     utils.log('Last signal: ' + str(last_signal))
     utils.log('Magic RSI: ' + str(round(magic_rsi, 2)))
     utils.log('CURRENT: ' + str(float(close)))
