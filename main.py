@@ -67,6 +67,7 @@ for conf in configs:
     close = ohlc[-1]["close"]
     high = ohlc[-1]["high"]
     low = ohlc[-1]["low"]
+
     utils.log('Last signal: ' + str(last_signal))
     utils.log('Magic RSI: ' + str(round(magic_rsi, 2)))
     utils.log('CURRENT: ' + str(float(close)))
@@ -87,6 +88,30 @@ for conf in configs:
         if conf['force_rsi_tp_for_short'] and rsi <= conf['rsi_tp_short']:
             utils.log('Close Short RSI Force TP triggered - Closing Short')
             utils.close_pos(exchange, user, conf['coin'], 'short')
+
+        if conf['tp_on']:
+            if position['side'] == 'Buy':
+                long_take_profit = float(position['avgPrice']) * (1 + float(conf['tp'])/100)
+                if float(high) >= long_take_profit:
+                    utils.log('Close Long Setted TP triggered - Closing Long')
+                    utils.close_pos(exchange, user, conf['coin'], 'long')
+            else:
+                short_take_profit = float(position['avgPrice']) * (1 - float(conf['tp'])/100)
+                if float(low) <= short_take_profit:
+                    utils.log('Close Short Setted TP triggered - Closing Short')
+                    utils.close_pos(exchange, user, conf['coin'], 'short')
+
+        if conf['sl_on']:
+            if position['side'] == 'Buy':
+                long_stop_loss = float(position['avgPrice']) * (1 - float(conf['sl'])/100)
+                if float(low) <= long_stop_loss:
+                    utils.log('Close Long Setted SL triggered - Closing Long')
+                    utils.close_pos(exchange, user, conf['coin'], 'long')
+            else:
+                short_stop_loss = float(position['avgPrice']) * (1 + float(conf['sl'])/100)
+                if float(high) >= short_stop_loss:
+                    utils.log('Close Short Setted SL triggered - Closing Short')
+                    utils.close_pos(exchange, user, conf['coin'], 'short')
 
         if conf['use_reversal']:
             reversal_ohlc = ohlc[len(ohlc)- conf['reversal_count']:]
@@ -118,7 +143,6 @@ for conf in configs:
             have_long = True
         else:
             have_short = True
-
 
     # check open conditions
     if conf['enable_long'] and bullSignal and (not conf['filter_ema_on'] or float(close) > float(v_filterEMA[-1])):
