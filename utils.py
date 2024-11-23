@@ -19,15 +19,15 @@ log_tmp = ''
 def log(message: str)-> None:
     global log_tmp
     log_tmp += message + '\n'
-
-    with open('log.txt', "a") as f:
-        f.write(f'\n'+str(message))
     print(message)
 
 def extract_log():
     global log_tmp
     tmp_log = log_tmp
     log_tmp = ''
+
+    with open('log.txt', "a") as f:
+        f.write(f'\n'+str(tmp_log))
     return tmp_log
 
 def find_configs(tf: str) -> list:

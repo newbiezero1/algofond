@@ -160,6 +160,6 @@ for conf in configs:
             if not have_short:
                 utils.log('OPEN SHORT')
                 utils.open_pos(exchange, user, conf['coin'], 'short')
-
+    utils.extract_log()
 
 os._exit(0)
