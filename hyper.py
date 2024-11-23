@@ -85,11 +85,11 @@ class Hyper:
         result['result'] = result['status']
 
         stop_order_type = {"trigger": {"triggerPx": sl, "isMarket": True, "tpsl": "sl"}}
-        stop_result = self.exchange.order(coin, not side, qty, sl, stop_order_type,
+        stop_result = self.exchange.order(coin, not pos_side, qty, sl, stop_order_type,
                                      reduce_only=True)
         print(stop_result)
         tp_order_type = {"trigger": {"triggerPx": tp, "isMarket": True, "tpsl": "tp"}}
-        tp_result = self.exchange.order(coin, not side, qty, tp, tp_order_type, reduce_only=True)
+        tp_result = self.exchange.order(coin, not pos_side, qty, tp, tp_order_type, reduce_only=True)
         print(tp_result)
         return result
 
