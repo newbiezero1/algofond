@@ -41,7 +41,7 @@ class Bybit:
             self.error(f'Warning get position: {result["retMsg"]}')
         return result["result"]["list"]
 
-    def make_market_order(self, coin, side, qty) -> dict:
+    def make_market_order(self, coin, side, qty, tp, sl) -> dict:
         """Send market order"""
         pos_side = 'Buy'
         if side == 'short':
@@ -53,7 +53,9 @@ class Bybit:
                                               symbol=order["symbol"],
                                               side=order["side"],
                                               orderType=order["orderType"],
-                                              qty=order["qty"])
+                                              qty=order["qty"],
+                                              takeProfit=tp,
+                                              stopLoss=sl)
         except Exception as e:
             self.error(e)
             return {}

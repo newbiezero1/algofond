@@ -89,30 +89,6 @@ for conf in configs:
             utils.log('Close Short RSI Force TP triggered - Closing Short')
             utils.close_pos(exchange, user, conf['coin'], 'short')
 
-        if conf['tp_on']:
-            if position['side'] == 'Buy':
-                long_take_profit = float(position['avgPrice']) * (1 + float(conf['tp'])/100)
-                if float(high) >= long_take_profit:
-                    utils.log('Close Long Setted TP triggered - Closing Long')
-                    utils.close_pos(exchange, user, conf['coin'], 'long')
-            else:
-                short_take_profit = float(position['avgPrice']) * (1 - float(conf['tp'])/100)
-                if float(low) <= short_take_profit:
-                    utils.log('Close Short Setted TP triggered - Closing Short')
-                    utils.close_pos(exchange, user, conf['coin'], 'short')
-
-        if conf['sl_on']:
-            if position['side'] == 'Buy':
-                long_stop_loss = float(position['avgPrice']) * (1 - float(conf['sl'])/100)
-                if float(low) <= long_stop_loss:
-                    utils.log('Close Long Setted SL triggered - Closing Long')
-                    utils.close_pos(exchange, user, conf['coin'], 'long')
-            else:
-                short_stop_loss = float(position['avgPrice']) * (1 + float(conf['sl'])/100)
-                if float(high) >= short_stop_loss:
-                    utils.log('Close Short Setted SL triggered - Closing Short')
-                    utils.close_pos(exchange, user, conf['coin'], 'short')
-
         if conf['use_reversal']:
             reversal_ohlc = ohlc[len(ohlc)- conf['reversal_count']:]
             reversal_filter_ema = v_filterEMA[len(v_filterEMA) - conf['reversal_count']:]
@@ -144,6 +120,8 @@ for conf in configs:
         else:
             have_short = True
 
+    utils.open_pos(exchange, user, conf, 'long')
+
     # check open conditions
     if conf['enable_long'] and bullSignal and (not conf['filter_ema_on'] or float(close) > float(v_filterEMA[-1])):
         if not conf['rsi_protection_for_long'] or float(magic_rsi) <= float(conf['high_rsi']):
@@ -151,7 +129,7 @@ for conf in configs:
             utils.close_pos(exchange, user, conf['coin'], 'short')
             if not have_long:
                 utils.log('OPEN LONG')
-                utils.open_pos(exchange, user, conf['coin'], 'long')
+                utils.open_pos(exchange, user, conf, 'long')
 
     if conf['enable_short'] and bearSignal and (not conf['filter_ema_on'] or float(close) < float(v_filterEMA[-1])):
         if not conf['rsi_protection_for_short'] or float(magic_rsi) >= float(conf['low_rsi']):
@@ -159,7 +137,7 @@ for conf in configs:
             utils.close_pos(exchange, user, conf['coin'], 'long')
             if not have_short:
                 utils.log('OPEN SHORT')
-                utils.open_pos(exchange, user, conf['coin'], 'short')
+                utils.open_pos(exchange, user, conf, 'short')
     utils.extract_log()
 
 os._exit(0)

@@ -293,18 +293,29 @@ def set_minqty(coin):
 
     return minqty
 
-def open_pos(exchange, user, coin, side):
+def open_pos(exchange, user, conf, side):
     dep = float(exchange.get_balance())
-    current_price = float(exchange.get_current_price(coin))
+    current_price = float(exchange.get_current_price(conf['coin']))
     qty = dep/current_price
-    roundC = get_minqty(coin)
-    if get_minqty(coin) >=1 :
+    roundC = get_minqty(conf['coin'])
+    if get_minqty(conf['coin']) >=1 :
         roundC=0
     qty = round(qty, roundC)
 
     if qty == 0:
-        qty = set_minqty(coin)
-    res = exchange.make_market_order(coin, side, qty)
+        qty = set_minqty(conf['coin'])
+
+    if side == 'long':
+        tp = float(current_price) * (1 + float(conf['tp']) / 100)
+        sl = float(current_price) * (1 - float(conf['sl']) / 100)
+    else:
+        tp = float(current_price) * (1 - float(conf['tp']) / 100)
+        sl = float(current_price) * (1 + float(conf['sl']) / 100)
+
+    tp = round(tp, roundC)
+    sl = round(sl, roundC)
+
+    res = exchange.make_market_order(conf['coin'], side, qty, tp,sl)
     notifyer = Notifyer(user["tg_chat_id"])
     if exchange.api_error_flag:
         notifyer.send_error(extract_log(), exchange.api_error_msg)
