@@ -81,11 +81,11 @@ for conf in configs:
         utils.log('CURRENT POSITION SIDE: ' + str(position['side']))
         utils.log('CURRENT POSITION AVG: ' + str(position['avgPrice']))
 
-        if conf['force_rsi_tp_for_long'] and rsi >= conf['rsi_tp_long']:
+        if conf['force_rsi_tp_for_long'] and rsi >= conf['rsi_tp_long'] and position['side'] == 'Buy':
             utils.log('Close Long RSI Force TP triggered - Closing Long')
             utils.close_pos(exchange, user, conf['coin'], 'long')
 
-        if conf['force_rsi_tp_for_short'] and rsi <= conf['rsi_tp_short']:
+        if conf['force_rsi_tp_for_short'] and rsi <= conf['rsi_tp_short'] and position['side'] == 'Sell' :
             utils.log('Close Short RSI Force TP triggered - Closing Short')
             utils.close_pos(exchange, user, conf['coin'], 'short')
 
