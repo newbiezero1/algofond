@@ -104,6 +104,8 @@ def get_ohlc(conf):
     umnozhitel = 5
     if conf['tf'] == '5m':
         umnozhitel = 5
+    if conf['tf'] == '10m':
+        umnozhitel = 5
     if conf['tf'] == '15m':
         umnozhitel = 15
     if conf['tf'] == '30m':
@@ -115,9 +117,30 @@ def get_ohlc(conf):
 
     if conf['tf'] == '10m':
         interval = '5m'
-        limit = limit * 2
     ohlc = []
     unix_time = int(datetime.now().timestamp())
+    if conf['tf'] == '10m':
+        date_start = (unix_time - (limit * umnozhitel * 60) * 6) * 1000
+        response = requests.get(
+            f'https://fapi.binance.com/fapi/v1/klines?symbol={conf["coin"]}USDT&interval={interval}&limit={limit}&startTime={date_start}')
+        kline = response.json()
+        for line in kline:
+            data = {"open": line[1],
+                    "high": line[2],
+                    "low": line[3],
+                    "close": line[4]}
+            ohlc.append(data)
+
+        date_start = (unix_time - (limit * umnozhitel * 60) * 5) * 1000
+        response = requests.get(
+            f'https://fapi.binance.com/fapi/v1/klines?symbol={conf["coin"]}USDT&interval={interval}&limit={limit}&startTime={date_start}')
+        kline = response.json()
+        for line in kline:
+            data = {"open": line[1],
+                    "high": line[2],
+                    "low": line[3],
+                    "close": line[4]}
+            ohlc.append(data)
 
     date_start = (unix_time - (limit * umnozhitel * 60) * 4) * 1000
     response = requests.get(
