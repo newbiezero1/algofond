@@ -143,7 +143,6 @@ for conf in configs:
             have_long = True
         else:
             have_short = True
-
     # check open conditions
     if conf['enable_long'] and bullSignal and (not conf['filter_ema_on'] or float(close) > float(v_filterEMA[-1])):
         if not conf['rsi_protection_for_long'] or float(magic_rsi) <= float(conf['high_rsi']):

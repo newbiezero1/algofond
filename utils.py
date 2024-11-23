@@ -351,9 +351,10 @@ def open_pos(exchange, user, conf, side):
         tp = float(current_price) * (1 - float(conf['tp']) / 100)
         sl = float(current_price) * (1 + float(conf['sl']) / 100)
 
-    #tp = round(tp, roundC)
-    #sl = round(sl, roundC)
-
+    roundTPSL = len(str(current_price).split('.')[1])
+    tp = round(tp, roundTPSL)
+    sl = round(sl, roundTPSL)
+    print(tp,sl)
     res = exchange.make_market_order(conf['coin'], side, qty, tp,sl)
     notifyer = Notifyer(user["tg_chat_id"])
     if exchange.api_error_flag:
