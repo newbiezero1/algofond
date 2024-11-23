@@ -154,7 +154,7 @@ for conf in configs:
                 utils.open_pos(exchange, user, conf['coin'], 'long')
 
     if conf['enable_short'] and bearSignal and (not conf['filter_ema_on'] or float(close) < float(v_filterEMA[-1])):
-        if not conf['rsi_protection_for_short'] and float(magic_rsi) >= float(conf['low_rsi']):
+        if not conf['rsi_protection_for_short'] or float(magic_rsi) >= float(conf['low_rsi']):
             utils.log('CLOSE LONG for SHORT')
             utils.close_pos(exchange, user, conf['coin'], 'long')
             if not have_short:
