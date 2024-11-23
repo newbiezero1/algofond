@@ -12,6 +12,7 @@ from notifyer import Notifyer
 
 users = {}
 accounts = {}
+ohlc_cache = {}
 
 log_tmp = ''
 
@@ -93,6 +94,11 @@ def get_account(account_id):
     return account
 
 def get_ohlc(conf):
+    cache_key = f'{conf["coin"]}_{conf["tf"]}'
+    if cache_key in ohlc_cache:
+        print('from cache')
+        return ohlc_cache[cache_key]
+
     limit = 1500;
     interval = conf['tf']
     umnozhitel = 5
@@ -164,6 +170,8 @@ def get_ohlc(conf):
                 }
                 ohlc_10m.append(combined)
         return ohlc_10m
+
+    ohlc_cache[cache_key] = ohlc
     return ohlc
 
 def calculate_ema(ohlc, period):
