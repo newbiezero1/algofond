@@ -73,7 +73,11 @@ for conf in configs:
     utils.log('CURRENT: ' + str(float(close)))
     utils.log('HIGH: ' + str(float(high)))
     utils.log('LOW: ' + str(float(low)))
-
+    if conf['coin'] == 'SOL':
+        utils.log('BB' + str(bullSignalList))
+        utils.log('BeBB' + str(bearSignalList))
+        utils.log('OHLC2: ' + str(ohlc[-2]))
+        utils.log('OHLC1: ' + str(ohlc[-1]))
     exchange = utils.get_exchange(account)
     positions = exchange.get_open_positions(conf['coin'])
     if len(positions) > 0:
