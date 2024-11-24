@@ -64,13 +64,13 @@ for conf in configs:
     utils.log('Bull Signal: ' + str(bullSignal))
     utils.log('Bear Signal: ' + str(bearSignal))
 
-    close = ohlc[-1]["close"]
+    open = ohlc[-1]["open"]
     high = ohlc[-1]["high"]
     low = ohlc[-1]["low"]
 
     utils.log('Last signal: ' + str(last_signal))
     utils.log('Magic RSI: ' + str(round(magic_rsi, 2)))
-    utils.log('CURRENT: ' + str(float(close)))
+    utils.log('OPEN: ' + str(float(open)))
     utils.log('HIGH: ' + str(float(high)))
     utils.log('LOW: ' + str(float(low)))
     if conf['coin'] == 'SOL':
@@ -149,7 +149,7 @@ for conf in configs:
             have_short = True
     # check open conditions
     try:
-        if conf['enable_long'] and bullSignal and (not conf['filter_ema_on'] or float(close) > float(v_filterEMA[-1])):
+        if conf['enable_long'] and bullSignal and (not conf['filter_ema_on'] or float(open) > float(v_filterEMA[-1])):
             if not conf['rsi_protection_for_long'] or float(magic_rsi) <= float(conf['high_rsi']):
                 utils.log('CLOSE SHORT for LONG')
                 utils.close_pos(exchange, user, conf['coin'], 'short')
@@ -157,7 +157,7 @@ for conf in configs:
                     utils.log('OPEN LONG')
                     utils.open_pos(exchange, user, conf, 'long')
 
-        if conf['enable_short'] and bearSignal and (not conf['filter_ema_on'] or float(close) < float(v_filterEMA[-1])):
+        if conf['enable_short'] and bearSignal and (not conf['filter_ema_on'] or float(open) < float(v_filterEMA[-1])):
             if not conf['rsi_protection_for_short'] or float(magic_rsi) >= float(conf['low_rsi']):
                 utils.log('CLOSE LONG for SHORT')
                 utils.close_pos(exchange, user, conf['coin'], 'long')
