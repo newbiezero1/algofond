@@ -2,6 +2,7 @@
 
 import sys
 import os
+import time
 import utils
 
 from datetime import datetime
@@ -17,6 +18,7 @@ if len(configs) == 0:
     print("No configs found for " + tf)
     exit()
 
+time.sleep(2)
 for conf in configs:
     utils.extract_log()
     user = utils.get_user(conf['user_id'])
