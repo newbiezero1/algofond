@@ -155,7 +155,7 @@ for conf in configs:
                 utils.close_pos(exchange, user, conf['coin'], 'short')
                 if not have_long:
                     utils.log('OPEN LONG')
-                    utils.open_pos(exchange, user, conf, 'long')
+                    utils.open_pos(exchange, user, conf, 'long', float(open))
 
         if conf['enable_short'] and bearSignal and (not conf['filter_ema_on'] or float(open) < float(v_filterEMA[-1])):
             if not conf['rsi_protection_for_short'] or float(magic_rsi) >= float(conf['low_rsi']):
@@ -163,7 +163,7 @@ for conf in configs:
                 utils.close_pos(exchange, user, conf['coin'], 'long')
                 if not have_short:
                     utils.log('OPEN SHORT')
-                    utils.open_pos(exchange, user, conf, 'short')
+                    utils.open_pos(exchange, user, conf, 'short', float(open))
     except Exception as e:
         utils.log('ERROR: '+str(e))
     utils.extract_log()

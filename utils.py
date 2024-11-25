@@ -332,9 +332,12 @@ def set_minqty(coin):
 
     return minqty
 
-def open_pos(exchange, user, conf, side):
+def open_pos(exchange, user, conf, side, current_price_olhc=None):
     dep = float(exchange.get_balance())
-    current_price = float(exchange.get_current_price(conf['coin']))
+    try:
+        current_price = float(exchange.get_current_price(conf['coin']))
+    except Exception as e:
+        current_price = current_price_olhc
     qty = dep/current_price
     roundC = get_minqty(conf['coin'])
     if get_minqty(conf['coin']) >=1 :
