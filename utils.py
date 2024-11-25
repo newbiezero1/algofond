@@ -60,6 +60,7 @@ def find_configs(tf: str) -> list:
             "tf": row[22],
             "use_reversal": row[23],
             "reversal_count": row[24],
+            "pos_perc_size": row[25],
         }
         configs.append(config)
     return configs
@@ -333,7 +334,8 @@ def set_minqty(coin):
     return minqty
 
 def open_pos(exchange, user, conf, side, current_price_olhc=None):
-    dep = float(exchange.get_balance())
+    dep_exch = float(exchange.get_balance())
+    dep = dep_exch / 100 * conf['pos_perc_size']
     try:
         current_price = float(exchange.get_current_price(conf['coin']))
     except Exception as e:
