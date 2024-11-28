@@ -119,7 +119,7 @@ for conf in configs:
                         utils.close_pos(exchange, user, conf['coin'], 'short')
 
             if conf['use_reversal']:
-                reversal_ohlc = ohlc[len(ohlc)- conf['reversal_count']-1:]
+                reversal_ohlc = ohlc[len(ohlc)- conf['reversal_count']:]
                 reversal_filter_ema = v_filterEMA[len(v_filterEMA) - conf['reversal_count']:]
                 reversal_counter = 0
                 for i, item in enumerate(reversal_ohlc):
