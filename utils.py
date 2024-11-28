@@ -223,7 +223,7 @@ def get_ohlc(conf):
         ohlc.append(data)
     if conf['tf'] == '10m':
         ohlc_10m = []
-        for i in range(0, len(ohlc), 2):
+        for i in range(0, len(ohlc[:-1]), 2):
             if i + 1 < len(ohlc):
                 combined = {
                     "open": ohlc[i]["open"],
@@ -232,6 +232,11 @@ def get_ohlc(conf):
                     "close": ohlc[i + 1]["close"]
                 }
                 ohlc_10m.append(combined)
+        data = {"open": ohlc[-1]["open"],
+                "high": ohlc[-1]["high"],
+                "low": ohlc[-1]["low"],
+                "close": ohlc[-1]["close"]}
+        ohlc_10m.append(data)
         return ohlc_10m
 
     ohlc_cache[cache_key] = ohlc
