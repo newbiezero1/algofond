@@ -131,7 +131,7 @@ for conf in configs:
                             reversal_counter += 1
                         else:
                             reversal_counter = 0
-                if reversal_counter >= conf['reversal_count']:
+                if reversal_counter > conf['reversal_count']:
                     utils.log('Reclaim EMA SL')
                     if position['side'] == 'Buy':
                         utils.close_pos(exchange, user, conf['coin'], 'long')
