@@ -127,7 +127,7 @@ def get_ohlc(conf):
         date_start = (unix_time - (limit * umnozhitel * 60) * 11) * 1000
         kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
         for line in kline:
-            data = {"open": line[1],
+            data = {"timestamp": line[0], "open": line[1],
                     "high": line[2],
                     "low": line[3],
                     "close": line[4]}
@@ -136,7 +136,7 @@ def get_ohlc(conf):
         date_start = (unix_time - (limit * umnozhitel * 60) * 10) * 1000
         kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
         for line in kline:
-            data = {"open": line[1],
+            data = {"timestamp": line[0], "open": line[1],
                     "high": line[2],
                     "low": line[3],
                     "close": line[4]}
@@ -145,7 +145,7 @@ def get_ohlc(conf):
         date_start = (unix_time - (limit * umnozhitel * 60) * 9) * 1000
         kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
         for line in kline:
-            data = {"open": line[1],
+            data = {"timestamp": line[0], "open": line[1],
                     "high": line[2],
                     "low": line[3],
                     "close": line[4]}
@@ -154,7 +154,7 @@ def get_ohlc(conf):
         date_start = (unix_time - (limit * umnozhitel * 60) * 8) * 1000
         kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
         for line in kline:
-            data = {"open": line[1],
+            data = {"timestamp": line[0], "open": line[1],
                     "high": line[2],
                     "low": line[3],
                     "close": line[4]}
@@ -163,7 +163,7 @@ def get_ohlc(conf):
         date_start = (unix_time - (limit * umnozhitel * 60) * 7) * 1000
         kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
         for line in kline:
-            data = {"open": line[1],
+            data = {"timestamp": line[0], "open": line[1],
                     "high": line[2],
                     "low": line[3],
                     "close": line[4]}
@@ -172,7 +172,7 @@ def get_ohlc(conf):
         date_start = (unix_time - (limit * umnozhitel * 60) * 6) * 1000
         kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
         for line in kline:
-            data = {"open": line[1],
+            data = {"timestamp": line[0], "open": line[1],
                     "high": line[2],
                     "low": line[3],
                     "close": line[4]}
@@ -181,7 +181,7 @@ def get_ohlc(conf):
         date_start = (unix_time - (limit * umnozhitel * 60) * 5) * 1000
         kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
         for line in kline:
-            data = {"open": line[1],
+            data = {"timestamp": line[0], "open": line[1],
                     "high": line[2],
                     "low": line[3],
                     "close": line[4]}
@@ -190,7 +190,7 @@ def get_ohlc(conf):
     date_start = (unix_time - (limit * umnozhitel * 60) * 4) * 1000
     kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
     for line in kline:
-        data = {"open": line[1],
+        data = {"timestamp": line[0], "open": line[1],
                 "high": line[2],
                 "low": line[3],
                 "close": line[4]}
@@ -199,7 +199,7 @@ def get_ohlc(conf):
     date_start = (unix_time - (limit * umnozhitel * 60) * 3) * 1000
     kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
     for line in kline:
-        data = {"open": line[1],
+        data = {"timestamp": line[0], "open": line[1],
                 "high": line[2],
                 "low": line[3],
                 "close": line[4]}
@@ -208,7 +208,7 @@ def get_ohlc(conf):
     date_start = (unix_time - (limit * umnozhitel *60 )*2 ) *1000
     kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
     for line in kline:
-        data = {"open": line[1],
+        data = {"timestamp": line[0], "open": line[1],
                 "high": line[2],
                 "low": line[3],
                 "close": line[4]}
@@ -216,27 +216,58 @@ def get_ohlc(conf):
     response = requests.get(f'https://fapi.binance.com/fapi/v1/klines?symbol={conf["coin"]}USDT&interval={interval}&limit={limit}')
     kline = response.json()
     for line in kline:
-        data = {"open": line[1],
+        data = {"timestamp": line[0], "open": line[1],
                 "high": line[2],
                 "low": line[3],
                 "close": line[4]}
         ohlc.append(data)
     if conf['tf'] == '10m':
         ohlc_10m = []
-        for i in range(0, len(ohlc[:-1]), 2):
-            if i + 1 < len(ohlc):
-                combined = {
-                    "open": ohlc[i]["open"],
-                    "high": max(ohlc[i]["high"], ohlc[i + 1]["high"]),
-                    "low": min(ohlc[i]["low"], ohlc[i + 1]["low"]),
-                    "close": ohlc[i + 1]["close"]
-                }
-                ohlc_10m.append(combined)
-        data = {"open": ohlc[-1]["open"],
-                "high": ohlc[-1]["high"],
-                "low": ohlc[-1]["low"],
-                "close": ohlc[-1]["close"]}
-        ohlc_10m.append(data)
+        timest = []
+        openst = []
+        highst = []
+        lowst = []
+        closest = []
+        for i in ohlc:
+            unix_time_sec = i['timestamp'] / 1000.0
+            # Преобразуем в объект datetime
+            dt = datetime.fromtimestamp(unix_time_sec)
+            # Преобразуем в строку в формате 'YYYY-MM-DD HH:MM:SS'
+            formatted_time = dt.strftime('%Y-%m-%d %H:%M:%S')
+            timest.append(formatted_time)
+            openst.append(i['open'])
+            highst.append(i['high'])
+            lowst.append(i['low'])
+            closest.append(i['close'])
+        data = {
+            'timestamp': timest,
+            'open': openst,
+            'high': highst,
+            'low': lowst,
+            'close': closest,
+        }
+        # Создаем DataFrame
+        df_5m = pd.DataFrame(data)
+        df_5m['timestamp'] = pd.to_datetime(df_5m['timestamp'])
+        df_5m.set_index('timestamp', inplace=True)
+
+        # Агрегируем данные до таймфрейма 10м
+        df_10m = df_5m.resample('10min').agg({
+            'open': 'first',  # Первое значение для открытия
+            'high': 'max',  # Максимальное значение за 10 минут
+            'low': 'min',  # Минимальное значение за 10 минут
+            'close': 'last',  # Последнее значение для закрытия
+        })
+
+        # Смотрим на результат
+
+        for i in range(df_10m.shape[0]):
+            item = {"open":df_10m.iloc[i]['open'],
+                    "high": df_10m.iloc[i]['high'],
+                    "low": df_10m.iloc[i]['low'],
+                    "close": df_10m.iloc[i]['close']}
+            ohlc_10m.append(item)
+        print(ohlc_10m[-1], ohlc_10m[-2])
         return ohlc_10m
 
     ohlc_cache[cache_key] = ohlc
