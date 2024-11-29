@@ -77,6 +77,37 @@ for conf in configs:
         utils.log('HIGH: ' + str(float(high)))
         utils.log('LOW: ' + str(float(low)))
 
+        have_long = False
+        have_short = False
+        positions = exchange.get_open_positions(conf['coin'])
+        if len(positions) > 0:
+            position = positions[0]
+            if position['side'] == 'Buy':
+                have_long = True
+            else:
+                have_short = True
+        # check open conditions
+        try:
+            if conf['enable_long'] and bullSignal and (
+                    not conf['filter_ema_on'] or float(open) > float(v_filterEMA[-1])):
+                if not conf['rsi_protection_for_long'] or float(magic_rsi) <= float(conf['high_rsi']):
+                    utils.log('CLOSE SHORT for LONG')
+                    utils.close_pos(exchange, user, conf['coin'], 'short')
+                    if not have_long:
+                        utils.log('OPEN LONG')
+                        utils.open_pos(exchange, user, conf, 'long', float(open))
+
+            if conf['enable_short'] and bearSignal and (
+                    not conf['filter_ema_on'] or float(open) < float(v_filterEMA[-1])):
+                if not conf['rsi_protection_for_short'] or float(magic_rsi) >= float(conf['low_rsi']):
+                    utils.log('CLOSE LONG for SHORT')
+                    utils.close_pos(exchange, user, conf['coin'], 'long')
+                    if not have_short:
+                        utils.log('OPEN SHORT')
+                        utils.open_pos(exchange, user, conf, 'short', float(open))
+        except Exception as e:
+            utils.log('ERROR: ' + str(e))
+
         exchange = utils.get_exchange(account)
         positions = exchange.get_open_positions(conf['coin'])
         if len(positions) > 0:
@@ -137,34 +168,7 @@ for conf in configs:
                         utils.close_pos(exchange, user, conf['coin'], 'long')
                     else:
                         utils.close_pos(exchange, user, conf['coin'], 'short')
-        have_long = False
-        have_short = False
-        positions = exchange.get_open_positions(conf['coin'])
-        if len(positions) > 0:
-            position = positions[0]
-            if position['side'] == 'Buy':
-                have_long = True
-            else:
-                have_short = True
-        # check open conditions
-        try:
-            if conf['enable_long'] and bullSignal and (not conf['filter_ema_on'] or float(open) > float(v_filterEMA[-1])):
-                if not conf['rsi_protection_for_long'] or float(magic_rsi) <= float(conf['high_rsi']):
-                    utils.log('CLOSE SHORT for LONG')
-                    utils.close_pos(exchange, user, conf['coin'], 'short')
-                    if not have_long:
-                        utils.log('OPEN LONG')
-                        utils.open_pos(exchange, user, conf, 'long', float(open))
 
-            if conf['enable_short'] and bearSignal and (not conf['filter_ema_on'] or float(open) < float(v_filterEMA[-1])):
-                if not conf['rsi_protection_for_short'] or float(magic_rsi) >= float(conf['low_rsi']):
-                    utils.log('CLOSE LONG for SHORT')
-                    utils.close_pos(exchange, user, conf['coin'], 'long')
-                    if not have_short:
-                        utils.log('OPEN SHORT')
-                        utils.open_pos(exchange, user, conf, 'short', float(open))
-        except Exception as e:
-            utils.log('ERROR: '+str(e))
     except Exception as e:
         utils.log('ERROR: '+str(e))
     utils.extract_log()
