@@ -77,6 +77,7 @@ for conf in configs:
         utils.log('HIGH: ' + str(float(high)))
         utils.log('LOW: ' + str(float(low)))
 
+        exchange = utils.get_exchange(account)
         have_long = False
         have_short = False
         positions = exchange.get_open_positions(conf['coin'])
@@ -108,7 +109,6 @@ for conf in configs:
         except Exception as e:
             utils.log('ERROR: ' + str(e))
 
-        exchange = utils.get_exchange(account)
         positions = exchange.get_open_positions(conf['coin'])
         if len(positions) > 0:
             position = positions[0]
