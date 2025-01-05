@@ -97,3 +97,14 @@ class Hyper:
         result = self.exchange.market_close(coin)
         result['result'] = result['status']
         return result
+
+    def get_spot_list(self):
+        result = self.info.spot_meta()
+        list_tokens = {}
+        for token in result['tokens']:
+            list_tokens[token['index']] = token
+
+        filtered = {}
+        for token in result['universe']:
+            filtered[token['tokens'][0]] = list_tokens[token['tokens'][0]]
+        return filtered
