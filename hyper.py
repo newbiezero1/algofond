@@ -107,4 +107,11 @@ class Hyper:
         filtered = {}
         for token in result['universe']:
             filtered[token['tokens'][0]] = list_tokens[token['tokens'][0]]
+            filtered[token['tokens'][0]]['index_name'] = token['name']
         return filtered
+
+    def get_current_price_spot(self, coin):
+        result = self.info.spot_meta_and_asset_ctxs()
+        for token in result[1]:
+            if token['coin'] == coin:
+                return token['markPx']
