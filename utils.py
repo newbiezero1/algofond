@@ -199,7 +199,7 @@ def set_minqty(coin):
 
     return minqty
 
-def open_pos(exchange, user, conf, side, current_price_olhc=None):
+def open_pos(exchange, user, conf, side, tp,sl, current_price_olhc=None):
     dep_exch = float(exchange.get_balance())
     #dep = dep_exch / 100 * conf['pos_perc_size']
     dep = dep_exch / 100 * 100
@@ -215,13 +215,6 @@ def open_pos(exchange, user, conf, side, current_price_olhc=None):
 
     if qty == 0:
         qty = set_minqty(conf['coin'])
-
-    if side == 'long':
-        tp = float(current_price) * (1 + float(conf['tp']) / 100)
-        sl = float(current_price) * (1 - float(conf['sl']) / 100)
-    else:
-        tp = float(current_price) * (1 - float(conf['tp']) / 100)
-        sl = float(current_price) * (1 + float(conf['sl']) / 100)
 
     roundTPSL = len(str(current_price).split('.')[1])
     tp = round(tp, roundTPSL)

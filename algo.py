@@ -43,7 +43,9 @@ class Algo:
                     utils.log('CLOSE SHORT for LONG')
                     utils.close_pos(self.exchange, self.user, self.coin, 'short')
                 utils.log('OPEN LONG')
-                utils.open_pos(self.exchange, self.user, self.params, 'long', float(self.ohlc[-1]['open']))
+                tp = float(self.ohlc[-1]['open']) * (1 + float(self.params['tp']) / 100)
+                sl = float(self.ohlc[-1]['open']) * (1 - float(self.params['sl']) / 100)
+                utils.open_pos(self.exchange, self.user, self.params, 'long',tp, sl, float(self.ohlc[-1]['open']))
 
 
             if shortCondition and not have_short:
@@ -51,7 +53,52 @@ class Algo:
                     utils.log('CLOSE LONG for SHORT')
                     utils.close_pos(self.exchange, self.user, self.coin, 'long')
                 utils.log('OPEN SHORT')
-                utils.open_pos(self.exchange, self.user, self.params, 'short', float(self.ohlc[-1]['open']))
+                tp = float(self.ohlc[-1]['open']) * (1 - float(self.params['tp']) / 100)
+                sl = float(self.ohlc[-1]['open']) * (1 + float(self.params['sl']) / 100)
+                utils.open_pos(self.exchange, self.user, self.params, 'short', tp, sl, float(self.ohlc[-1]['open']))
+        except Exception as e:
+            utils.log('ERROR: ' + str(e))
+        return
+    
+    def v2(self):
+        utils.log('run v2')
+        rsi = utils.calculate_rsi(self.ohlc, self.params['rsi_length'])
+        utils.log(f'rsi: {rsi[-2]}')
+        longCondition = rsi[-2] < self.params['oversell']
+        shortCondition = rsi[-2] > self.params['overbuy']
+        candlesize = self.ohlc[-3]['high'] - self.ohlc[-3]['low']
+        have_long = False
+        have_short = False
+        positions = self.exchange.get_open_positions(self.coin)
+
+        if len(positions) > 0:
+            position = positions[0]
+            if position['side'] == 'Buy':
+                have_long = True
+            else:
+                have_short = True
+        if longCondition or shortCondition:
+            if not self.check_drawdown():
+                return False
+        try:
+            if longCondition and not have_long:
+                if have_short:
+                    utils.log('CLOSE SHORT for LONG')
+                    utils.close_pos(self.exchange, self.user, self.coin, 'short')
+                utils.log('OPEN LONG')
+                sl = self.ohlc[-1]['open'] - candlesize
+                tp = self.ohlc[-1]['open'] + candlesize
+                utils.open_pos(self.exchange, self.user, self.params, 'long',tp, sl, float(self.ohlc[-1]['open']))
+
+
+            if shortCondition and not have_short:
+                if have_long:
+                    utils.log('CLOSE LONG for SHORT')
+                    utils.close_pos(self.exchange, self.user, self.coin, 'long')
+                utils.log('OPEN SHORT')
+                sl = self.ohlc[-1]['open'] + candlesize
+                tp = self.ohlc[-1]['open'] - candlesize
+                utils.open_pos(self.exchange, self.user, self.params, 'short',tp, sl, float(self.ohlc[-1]['open']))
         except Exception as e:
             utils.log('ERROR: ' + str(e))
         return
