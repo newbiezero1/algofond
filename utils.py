@@ -25,7 +25,6 @@ def extract_log():
     global log_tmp
     tmp_log = log_tmp
     log_tmp = ''
-
     with open('log.txt', "a") as f:
         f.write(f'\n'+str(tmp_log))
     return tmp_log
@@ -39,28 +38,10 @@ def find_configs(tf: str) -> list:
             "user_id": row[1],
             "account_id": row[2],
             "coin": row[3],
-            "sl_on": row[4],
-            "tp_on": row[5],
-            "sl": row[6],
-            "tp": row[7],
-            "filter_ema": row[8],
-            "fast_ema": row[9],
-            "slow_ema": row[10],
-            "filter_ema_on": row[11],
-            "enable_long": row[12],
-            "enable_short": row[13],
-            "low_rsi": row[14],
-            "high_rsi": row[15],
-            "rsi_protection_for_long": row[16],
-            "rsi_protection_for_short": row[17],
-            "rsi_tp_long": row[18],
-            "rsi_tp_short": row[19],
-            "force_rsi_tp_for_long": row[20],
-            "force_rsi_tp_for_short": row[21],
-            "tf": row[22],
-            "use_reversal": row[23],
-            "reversal_count": row[24],
-            "pos_perc_size": row[25],
+            "tf": row[4],
+            "max_drawdown": row[5],
+            "version": row[6],
+            "param": json.loads(row[7]),
         }
         configs.append(config)
     return configs
@@ -106,113 +87,10 @@ def get_ohlc(conf):
     limit = 1500;
     interval = conf['tf']
     umnozhitel = 5
-    if conf['tf'] == '5m':
-        umnozhitel = 5
-    if conf['tf'] == '10m':
-        umnozhitel = 5
-    if conf['tf'] == '15m':
-        umnozhitel = 15
-    if conf['tf'] == '30m':
-        umnozhitel = 30
-    if conf['tf'] == '1h':
-        umnozhitel = 60
-    if conf['tf'] == '4h':
-        umnozhitel = 240
 
-    if conf['tf'] == '10m':
-        interval = '5m'
     ohlc = []
     unix_time = int(datetime.now().timestamp())
-    if conf['tf'] == '10m':
-        date_start = (unix_time - (limit * umnozhitel * 60) * 11) * 1000
-        kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
-        for line in kline:
-            data = {"timestamp": line[0], "open": line[1],
-                    "high": line[2],
-                    "low": line[3],
-                    "close": line[4]}
-            ohlc.append(data)
 
-        date_start = (unix_time - (limit * umnozhitel * 60) * 10) * 1000
-        kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
-        for line in kline:
-            data = {"timestamp": line[0], "open": line[1],
-                    "high": line[2],
-                    "low": line[3],
-                    "close": line[4]}
-            ohlc.append(data)
-
-        date_start = (unix_time - (limit * umnozhitel * 60) * 9) * 1000
-        kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
-        for line in kline:
-            data = {"timestamp": line[0], "open": line[1],
-                    "high": line[2],
-                    "low": line[3],
-                    "close": line[4]}
-            ohlc.append(data)
-
-        date_start = (unix_time - (limit * umnozhitel * 60) * 8) * 1000
-        kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
-        for line in kline:
-            data = {"timestamp": line[0], "open": line[1],
-                    "high": line[2],
-                    "low": line[3],
-                    "close": line[4]}
-            ohlc.append(data)
-
-        date_start = (unix_time - (limit * umnozhitel * 60) * 7) * 1000
-        kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
-        for line in kline:
-            data = {"timestamp": line[0], "open": line[1],
-                    "high": line[2],
-                    "low": line[3],
-                    "close": line[4]}
-            ohlc.append(data)
-
-        date_start = (unix_time - (limit * umnozhitel * 60) * 6) * 1000
-        kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
-        for line in kline:
-            data = {"timestamp": line[0], "open": line[1],
-                    "high": line[2],
-                    "low": line[3],
-                    "close": line[4]}
-            ohlc.append(data)
-
-        date_start = (unix_time - (limit * umnozhitel * 60) * 5) * 1000
-        kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
-        for line in kline:
-            data = {"timestamp": line[0], "open": line[1],
-                    "high": line[2],
-                    "low": line[3],
-                    "close": line[4]}
-            ohlc.append(data)
-
-    date_start = (unix_time - (limit * umnozhitel * 60) * 4) * 1000
-    kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
-    for line in kline:
-        data = {"timestamp": line[0], "open": line[1],
-                "high": line[2],
-                "low": line[3],
-                "close": line[4]}
-        ohlc.append(data)
-
-    date_start = (unix_time - (limit * umnozhitel * 60) * 3) * 1000
-    kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
-    for line in kline:
-        data = {"timestamp": line[0], "open": line[1],
-                "high": line[2],
-                "low": line[3],
-                "close": line[4]}
-        ohlc.append(data)
-
-    date_start = (unix_time - (limit * umnozhitel *60 )*2 ) *1000
-    kline = json.loads(get_kline_from_db(conf['coin'], conf['tf'], date_start))
-    for line in kline:
-        data = {"timestamp": line[0], "open": line[1],
-                "high": line[2],
-                "low": line[3],
-                "close": line[4]}
-        ohlc.append(data)
     response = requests.get(f'https://fapi.binance.com/fapi/v1/klines?symbol={conf["coin"]}USDT&interval={interval}&limit={limit}')
     kline = response.json()
     for line in kline:
@@ -221,55 +99,6 @@ def get_ohlc(conf):
                 "low": line[3],
                 "close": line[4]}
         ohlc.append(data)
-    if conf['tf'] == '10m':
-        ohlc_10m = []
-        timest = []
-        openst = []
-        highst = []
-        lowst = []
-        closest = []
-        for i in ohlc:
-            unix_time_sec = i['timestamp'] / 1000.0
-            # Преобразуем в объект datetime
-            dt = datetime.fromtimestamp(unix_time_sec)
-            # Преобразуем в строку в формате 'YYYY-MM-DD HH:MM:SS'
-            formatted_time = dt.strftime('%Y-%m-%d %H:%M:%S')
-            timest.append(formatted_time)
-            openst.append(i['open'])
-            highst.append(i['high'])
-            lowst.append(i['low'])
-            closest.append(i['close'])
-        data = {
-            'timestamp': timest,
-            'open': openst,
-            'high': highst,
-            'low': lowst,
-            'close': closest,
-        }
-        # Создаем DataFrame
-        df_5m = pd.DataFrame(data)
-        df_5m['timestamp'] = pd.to_datetime(df_5m['timestamp'])
-        df_5m.set_index('timestamp', inplace=True)
-
-        # Агрегируем данные до таймфрейма 10м
-        df_10m = df_5m.resample('10min').agg({
-            'open': 'first',  # Первое значение для открытия
-            'high': 'max',  # Максимальное значение за 10 минут
-            'low': 'min',  # Минимальное значение за 10 минут
-            'close': 'last',  # Последнее значение для закрытия
-        })
-
-        # Смотрим на результат
-
-        for i in range(df_10m.shape[0]):
-            item = {"open":df_10m.iloc[i]['open'],
-                    "high": df_10m.iloc[i]['high'],
-                    "low": df_10m.iloc[i]['low'],
-                    "close": df_10m.iloc[i]['close']}
-            ohlc_10m.append(item)
-        print(ohlc_10m[-1], ohlc_10m[-2])
-        return ohlc_10m
-
     ohlc_cache[cache_key] = ohlc
     return ohlc
 
@@ -371,14 +200,15 @@ def set_minqty(coin):
 
 def open_pos(exchange, user, conf, side, current_price_olhc=None):
     dep_exch = float(exchange.get_balance())
-    dep = dep_exch / 100 * conf['pos_perc_size']
+    #dep = dep_exch / 100 * conf['pos_perc_size']
+    dep = dep_exch / 100 * 100
     try:
         current_price = float(exchange.get_current_price(conf['coin']))
     except Exception as e:
         current_price = current_price_olhc
     qty = dep/current_price
     roundC = get_minqty(conf['coin'])
-    if get_minqty(conf['coin']) >=1 :
+    if get_minqty(conf['coin']) >=1 and conf['coin'] != 'BTC' and conf['coin'] != 'ETH':
         roundC=0
     qty = round(qty, roundC)
 
