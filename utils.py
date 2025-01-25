@@ -30,7 +30,7 @@ def extract_log():
     return tmp_log
 
 def find_configs(tf: str) -> list:
-    res = db.execute_query(f'select * from configs where tf = "{tf}"')
+    res = db.execute_query(f'select * from configs where tf = "{tf}" and enabled = 1')
     configs = []
     for row in res:
         config = {
@@ -42,6 +42,7 @@ def find_configs(tf: str) -> list:
             "max_drawdown": row[5],
             "version": row[6],
             "param": json.loads(row[7]),
+            'start_balance': row[8],
         }
         configs.append(config)
     return configs
