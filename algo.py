@@ -132,3 +132,47 @@ class Algo:
         except Exception as e:
             utils.log('ERROR: ' + str(e))
         return
+
+    def v10(self):
+        utils.log('run v10')
+        trendEma = utils.calculate_ema(self.ohlc, self.params['filter_ema'])
+        slowEma = utils.calculate_ema(self.ohlc, self.params['slow_ema'])
+        crossover = utils.calculate_crossover(slowEma, trendEma)
+        crossunder = utils.calculate_crossunder(slowEma, trendEma)
+
+        utils.log(f'Trend Ema: {trendEma[-2]}')
+        utils.log(f'Slow Ema: {slowEma[-2]}')
+        longCondition = crossover[-2]
+        shortCondition = crossunder[-2]
+        have_long = False
+        have_short = False
+        positions = self.exchange.get_open_positions(self.coin)
+        if len(positions) > 0:
+            position = positions[0]
+            if position['side'] == 'Buy':
+                have_long = True
+            else:
+                have_short = True
+
+        try:
+            if longCondition and not have_long:
+                if have_short:
+                    utils.log('CLOSE SHORT for LONG')
+                    utils.close_pos(self.exchange, self.user, self.coin, 'short')
+                utils.log('OPEN LONG')
+                tp = float(self.ohlc[-1]['open']) * (1 + float(self.params['tp']) / 100)
+                sl = float(self.ohlc[-1]['open']) * (1 - float(self.params['sl']) / 100)
+                utils.open_pos(self.exchange, self.user, self.params, 'long',tp, sl, float(self.ohlc[-1]['open']))
+
+
+            if shortCondition and not have_short:
+                if have_long:
+                    utils.log('CLOSE LONG for SHORT')
+                    utils.close_pos(self.exchange, self.user, self.coin, 'long')
+                utils.log('OPEN SHORT')
+                tp = float(self.ohlc[-1]['open']) * (1 - float(self.params['tp']) / 100)
+                sl = float(self.ohlc[-1]['open']) * (1 + float(self.params['sl']) / 100)
+                utils.open_pos(self.exchange, self.user, self.params, 'short', tp, sl, float(self.ohlc[-1]['open']))
+        except Exception as e:
+            utils.log('ERROR: ' + str(e))
+        return

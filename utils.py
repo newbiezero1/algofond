@@ -115,7 +115,25 @@ def calculate_ema(ohlc, period):
     prices_series = pd.Series(prices)
     ema = prices_series.ewm(span=period, adjust=False).mean()
     return ema.tolist()
+def calculate_crossover(v_fastEMA, v_slowEMA):
+    bullSignal = []
+    for i in range(len(v_fastEMA)):
+        bullSignal.append(False)
+        if i == 0:
+            continue
+        if v_fastEMA[i - 1] < v_slowEMA[i - 1] and v_fastEMA[i] > v_slowEMA[i]:
+            bullSignal[i] = True
+    return bullSignal
 
+def calculate_crossunder(v_fastEMA, v_slowEMA):
+    bearSignal = []
+    for i in range(len(v_fastEMA)):
+        bearSignal.append(False)
+        if i == 0:
+            continue
+        if v_fastEMA[i - 1] > v_slowEMA[i - 1] and v_fastEMA[i] < v_slowEMA[i]:
+            bearSignal[i] = True
+    return bearSignal
 def calculate_rsi(ohlc, period):
     prices = []
     for line in ohlc:
