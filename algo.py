@@ -11,6 +11,8 @@ class Algo:
         self.balance = conf['max_balance']
         self.max_drawdown = conf['max_drawdown']
         self.params['coin'] = self.coin
+        self.have_long = False
+        self.have_short = False
 
     def check_drawdown(self):
         dep = float(self.exchange.get_balance())
@@ -21,25 +23,27 @@ class Algo:
             utils.log(f'Drawdown check: {dep} < {self.balance}  max drawdown: {self.max_drawdown}')
             return False
         return True
+
+    def check_position(self):
+        positions = self.exchange.get_open_positions(self.coin)
+        if len(positions) > 0:
+            position = positions[0]
+            if position['side'] == 'Buy':
+                self.have_long = True
+            else:
+                self.have_short = True
+
     def v1(self):
         utils.log('run v1')
         rsi = utils.calculate_rsi(self.ohlc, self.params['rsi_length'])
         utils.log(f'rsi: {rsi[-2]}')
         longCondition = rsi[-2] < self.params['oversell']
         shortCondition = rsi[-2] > self.params['overbuy']
-        have_long = False
-        have_short = False
-        positions = self.exchange.get_open_positions(self.coin)
-        if len(positions) > 0:
-            position = positions[0]
-            if position['side'] == 'Buy':
-                have_long = True
-            else:
-                have_short = True
 
         try:
-            if longCondition and not have_long:
-                if have_short:
+            self.check_position()
+            if longCondition and not self.have_long:
+                if self.have_short:
                     utils.log('CLOSE SHORT for LONG')
                     utils.close_pos(self.exchange, self.user, self.coin, 'short')
                 utils.log('OPEN LONG')
@@ -48,8 +52,8 @@ class Algo:
                 utils.open_pos(self.exchange, self.user, self.params, 'long',tp, sl, float(self.ohlc[-1]['open']))
 
 
-            if shortCondition and not have_short:
-                if have_long:
+            if shortCondition and not self.have_short:
+                if self.have_long:
                     utils.log('CLOSE LONG for SHORT')
                     utils.close_pos(self.exchange, self.user, self.coin, 'long')
                 utils.log('OPEN SHORT')
@@ -67,19 +71,11 @@ class Algo:
         longCondition = rsi[-2] < self.params['oversell']
         shortCondition = rsi[-2] > self.params['overbuy']
         candlesize = self.ohlc[-3]['high'] - self.ohlc[-3]['low']
-        have_long = False
-        have_short = False
-        positions = self.exchange.get_open_positions(self.coin)
-        if len(positions) > 0:
-            position = positions[0]
-            if position['side'] == 'Buy':
-                have_long = True
-            else:
-                have_short = True
 
         try:
-            if longCondition and not have_long:
-                if have_short:
+            self.check_position()
+            if longCondition and not self.have_long:
+                if self.have_short:
                     utils.log('CLOSE SHORT for LONG')
                     utils.close_pos(self.exchange, self.user, self.coin, 'short')
                 utils.log('OPEN LONG')
@@ -88,8 +84,8 @@ class Algo:
                 utils.open_pos(self.exchange, self.user, self.params, 'long',tp, sl, float(self.ohlc[-1]['open']))
 
 
-            if shortCondition and not have_short:
-                if have_long:
+            if shortCondition and not self.have_short:
+                if self.have_long:
                     utils.log('CLOSE LONG for SHORT')
                     utils.close_pos(self.exchange, self.user, self.coin, 'long')
                 utils.log('OPEN SHORT')
@@ -109,19 +105,11 @@ class Algo:
         utils.log(f'two_day_rsi_avg: {two_day_rsi_avg}')
         utils.log(f'ema: {ema[-2]}')
         longCondition = self.ohlc[-1]['open'] > ema[-2] and two_day_rsi_avg < 33
-        have_long = False
-        have_short = False
-        positions = self.exchange.get_open_positions(self.coin)
-        if len(positions) > 0:
-            position = positions[0]
-            if position['side'] == 'Buy':
-                have_long = True
-            else:
-                have_short = True
 
         try:
-            if longCondition and not have_long:
-                if have_short:
+            self.check_position()
+            if longCondition and not self.have_long:
+                if self.have_short:
                     utils.log('CLOSE SHORT for LONG')
                     utils.close_pos(self.exchange, self.user, self.coin, 'short')
                 utils.log('OPEN LONG')
@@ -142,19 +130,11 @@ class Algo:
         crossunder = utils.calculate_crossunder([rsi[-3], rsi[-2]], [self.params['overbuy'], self.params['overbuy']])
         longCondition = crossover[-1]
         shortCondition = crossunder[-1]
-        have_long = False
-        have_short = False
-        positions = self.exchange.get_open_positions(self.coin)
-        if len(positions) > 0:
-            position = positions[0]
-            if position['side'] == 'Buy':
-                have_long = True
-            else:
-                have_short = True
 
+        self.check_position()
         try:
-            if longCondition and not have_long:
-                if have_short:
+            if longCondition and not self.have_long:
+                if self.have_short:
                     utils.log('CLOSE SHORT for LONG')
                     utils.close_pos(self.exchange, self.user, self.coin, 'short')
                 utils.log('OPEN LONG')
@@ -163,8 +143,8 @@ class Algo:
                 utils.open_pos(self.exchange, self.user, self.params, 'long',tp, sl, float(self.ohlc[-1]['open']))
 
 
-            if shortCondition and not have_short:
-                if have_long:
+            if shortCondition and not self.have_short:
+                if self.have_long:
                     utils.log('CLOSE LONG for SHORT')
                     utils.close_pos(self.exchange, self.user, self.coin, 'long')
                 utils.log('OPEN SHORT')
@@ -186,19 +166,10 @@ class Algo:
         utils.log(f'Slow Ema: {slowEma[-2]}')
         longCondition = crossover[-2]
         shortCondition = crossunder[-2]
-        have_long = False
-        have_short = False
-        positions = self.exchange.get_open_positions(self.coin)
-        if len(positions) > 0:
-            position = positions[0]
-            if position['side'] == 'Buy':
-                have_long = True
-            else:
-                have_short = True
 
         try:
-            if longCondition and not have_long:
-                if have_short:
+            if longCondition and not self.have_long:
+                if self.have_short:
                     utils.log('CLOSE SHORT for LONG')
                     utils.close_pos(self.exchange, self.user, self.coin, 'short')
                 utils.log('OPEN LONG')
@@ -207,8 +178,8 @@ class Algo:
                 utils.open_pos(self.exchange, self.user, self.params, 'long',tp, sl, float(self.ohlc[-1]['open']))
 
 
-            if shortCondition and not have_short:
-                if have_long:
+            if shortCondition and not self.have_short:
+                if self.have_long:
                     utils.log('CLOSE LONG for SHORT')
                     utils.close_pos(self.exchange, self.user, self.coin, 'long')
                 utils.log('OPEN SHORT')
