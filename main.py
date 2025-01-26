@@ -40,6 +40,8 @@ for conf in configs:
             algo.v1()
         elif conf['version'] == 2:
             algo.v2()
+        elif conf['version'] == 3:
+            algo.v3()
 
 
     except Exception as e:
