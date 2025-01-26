@@ -13,6 +13,10 @@ class Algo:
         self.params['coin'] = self.coin
         self.have_long = False
         self.have_short = False
+        self.tp = 0
+        self.sl = 0
+        self.longCondition = False
+        self.shortCondition = False
 
     def check_drawdown(self):
         dep = float(self.exchange.get_balance())
@@ -33,67 +37,58 @@ class Algo:
             else:
                 self.have_short = True
 
-    def v1(self):
-        utils.log('run v1')
-        rsi = utils.calculate_rsi(self.ohlc, self.params['rsi_length'])
-        utils.log(f'rsi: {rsi[-2]}')
-        longCondition = rsi[-2] < self.params['oversell']
-        shortCondition = rsi[-2] > self.params['overbuy']
-
+    def trade_init(self):
         try:
             self.check_position()
-            if longCondition and not self.have_long:
+            if self.longCondition and not self.have_long:
                 if self.have_short:
                     utils.log('CLOSE SHORT for LONG')
                     utils.close_pos(self.exchange, self.user, self.coin, 'short')
                 utils.log('OPEN LONG')
-                tp = float(self.ohlc[-1]['open']) * (1 + float(self.params['tp']) / 100)
-                sl = float(self.ohlc[-1]['open']) * (1 - float(self.params['sl']) / 100)
-                utils.open_pos(self.exchange, self.user, self.params, 'long',tp, sl, float(self.ohlc[-1]['open']))
+                utils.open_pos(self.exchange, self.user, self.params, 'long',self.tp, self.sl, float(self.ohlc[-1]['open']))
 
 
-            if shortCondition and not self.have_short:
+            if self.shortCondition and not self.have_short:
                 if self.have_long:
                     utils.log('CLOSE LONG for SHORT')
                     utils.close_pos(self.exchange, self.user, self.coin, 'long')
                 utils.log('OPEN SHORT')
-                tp = float(self.ohlc[-1]['open']) * (1 - float(self.params['tp']) / 100)
-                sl = float(self.ohlc[-1]['open']) * (1 + float(self.params['sl']) / 100)
                 utils.open_pos(self.exchange, self.user, self.params, 'short', tp, sl, float(self.ohlc[-1]['open']))
         except Exception as e:
             utils.log('ERROR: ' + str(e))
+
+    def v1(self):
+        utils.log('run v1')
+        rsi = utils.calculate_rsi(self.ohlc, self.params['rsi_length'])
+        utils.log(f'rsi: {rsi[-2]}')
+        self.longCondition = rsi[-2] < self.params['oversell']
+        self.shortCondition = rsi[-2] > self.params['overbuy']
+
+        if self.longCondition:
+            self.tp = float(self.ohlc[-1]['open']) * (1 + float(self.params['tp']) / 100)
+            self.sl = float(self.ohlc[-1]['open']) * (1 - float(self.params['sl']) / 100)
+        if self.shortCondition:
+            self.tp = float(self.ohlc[-1]['open']) * (1 - float(self.params['tp']) / 100)
+            self.sl = float(self.ohlc[-1]['open']) * (1 + float(self.params['sl']) / 100)
+        self.trade_init()
+
         return
     
     def v2(self):
         utils.log('run v2')
         rsi = utils.calculate_rsi(self.ohlc, self.params['rsi_length'])
         utils.log(f'rsi: {rsi[-2]}')
-        longCondition = rsi[-2] < self.params['oversell']
-        shortCondition = rsi[-2] > self.params['overbuy']
+        self.longCondition = rsi[-2] < self.params['oversell']
+        self.shortCondition = rsi[-2] > self.params['overbuy']
         candlesize = self.ohlc[-3]['high'] - self.ohlc[-3]['low']
 
-        try:
-            self.check_position()
-            if longCondition and not self.have_long:
-                if self.have_short:
-                    utils.log('CLOSE SHORT for LONG')
-                    utils.close_pos(self.exchange, self.user, self.coin, 'short')
-                utils.log('OPEN LONG')
-                sl = self.ohlc[-1]['open'] - candlesize
-                tp = self.ohlc[-1]['open'] + candlesize
-                utils.open_pos(self.exchange, self.user, self.params, 'long',tp, sl, float(self.ohlc[-1]['open']))
-
-
-            if shortCondition and not self.have_short:
-                if self.have_long:
-                    utils.log('CLOSE LONG for SHORT')
-                    utils.close_pos(self.exchange, self.user, self.coin, 'long')
-                utils.log('OPEN SHORT')
-                sl = self.ohlc[-1]['open'] + candlesize
-                tp = self.ohlc[-1]['open'] - candlesize
-                utils.open_pos(self.exchange, self.user, self.params, 'short',tp, sl, float(self.ohlc[-1]['open']))
-        except Exception as e:
-            utils.log('ERROR: ' + str(e))
+        if self.longCondition:
+            self.sl = self.ohlc[-1]['open'] - candlesize
+            self.tp = self.ohlc[-1]['open'] + candlesize
+        if self.shortCondition:
+            self.sl = self.ohlc[-1]['open'] + candlesize
+            self.tp = self.ohlc[-1]['open'] - candlesize
+        self.trade_init()
         return
 
     def v3(self):
@@ -104,21 +99,12 @@ class Algo:
         two_day_rsi_avg = (rsi[-2] + rsi[-3]) / 2
         utils.log(f'two_day_rsi_avg: {two_day_rsi_avg}')
         utils.log(f'ema: {ema[-2]}')
-        longCondition = self.ohlc[-1]['open'] > ema[-2] and two_day_rsi_avg < 33
+        self.longCondition = self.ohlc[-1]['open'] > ema[-2] and two_day_rsi_avg < 33
 
-        try:
-            self.check_position()
-            if longCondition and not self.have_long:
-                if self.have_short:
-                    utils.log('CLOSE SHORT for LONG')
-                    utils.close_pos(self.exchange, self.user, self.coin, 'short')
-                utils.log('OPEN LONG')
-                tp = float(self.ohlc[-1]['open']) * (1 + float(self.params['tp']) / 100)
-                sl = float(self.ohlc[-1]['open']) * (1 - float(self.params['sl']) / 100)
-                utils.open_pos(self.exchange, self.user, self.params, 'long',tp, sl, float(self.ohlc[-1]['open']))
-
-        except Exception as e:
-            utils.log('ERROR: ' + str(e))
+        if self.longCondition:
+            self.tp = float(self.ohlc[-1]['open']) * (1 + float(self.params['tp']) / 100)
+            self.sl = float(self.ohlc[-1]['open']) * (1 - float(self.params['sl']) / 100)
+        self.trade_init()
         return
 
     def v5(self):
@@ -128,31 +114,16 @@ class Algo:
         utils.log(f'Rsi: {rsi[-2]}')
         crossover = utils.calculate_crossover([rsi[-3], rsi[-2]], [self.params['oversell'], self.params['oversell']])
         crossunder = utils.calculate_crossunder([rsi[-3], rsi[-2]], [self.params['overbuy'], self.params['overbuy']])
-        longCondition = crossover[-1]
-        shortCondition = crossunder[-1]
+        self.longCondition = crossover[-1]
+        self.shortCondition = crossunder[-1]
 
-        self.check_position()
-        try:
-            if longCondition and not self.have_long:
-                if self.have_short:
-                    utils.log('CLOSE SHORT for LONG')
-                    utils.close_pos(self.exchange, self.user, self.coin, 'short')
-                utils.log('OPEN LONG')
-                tp = float(self.ohlc[-1]['open']) * (1 + float(self.params['tp']) / 100)
-                sl = float(self.ohlc[-1]['open']) * (1 - float(self.params['sl']) / 100)
-                utils.open_pos(self.exchange, self.user, self.params, 'long',tp, sl, float(self.ohlc[-1]['open']))
-
-
-            if shortCondition and not self.have_short:
-                if self.have_long:
-                    utils.log('CLOSE LONG for SHORT')
-                    utils.close_pos(self.exchange, self.user, self.coin, 'long')
-                utils.log('OPEN SHORT')
-                tp = float(self.ohlc[-1]['open']) * (1 - float(self.params['tp']) / 100)
-                sl = float(self.ohlc[-1]['open']) * (1 + float(self.params['sl']) / 100)
-                utils.open_pos(self.exchange, self.user, self.params, 'short', tp, sl, float(self.ohlc[-1]['open']))
-        except Exception as e:
-            utils.log('ERROR: ' + str(e))
+        if self.longCondition:
+            self.tp = float(self.ohlc[-1]['open']) * (1 + float(self.params['tp']) / 100)
+            self.sl = float(self.ohlc[-1]['open']) * (1 - float(self.params['sl']) / 100)
+        if self.shortCondition:
+            self.tp = float(self.ohlc[-1]['open']) * (1 - float(self.params['tp']) / 100)
+            self.sl = float(self.ohlc[-1]['open']) * (1 + float(self.params['sl']) / 100)
+        self.trade_init()
         return
 
     def v10(self):
@@ -164,28 +135,14 @@ class Algo:
 
         utils.log(f'Trend Ema: {trendEma[-2]}')
         utils.log(f'Slow Ema: {slowEma[-2]}')
-        longCondition = crossover[-2]
-        shortCondition = crossunder[-2]
+        self.longCondition = crossover[-2]
+        self.shortCondition = crossunder[-2]
 
-        try:
-            if longCondition and not self.have_long:
-                if self.have_short:
-                    utils.log('CLOSE SHORT for LONG')
-                    utils.close_pos(self.exchange, self.user, self.coin, 'short')
-                utils.log('OPEN LONG')
-                tp = float(self.ohlc[-1]['open']) * (1 + float(self.params['tp']) / 100)
-                sl = float(self.ohlc[-1]['open']) * (1 - float(self.params['sl']) / 100)
-                utils.open_pos(self.exchange, self.user, self.params, 'long',tp, sl, float(self.ohlc[-1]['open']))
-
-
-            if shortCondition and not self.have_short:
-                if self.have_long:
-                    utils.log('CLOSE LONG for SHORT')
-                    utils.close_pos(self.exchange, self.user, self.coin, 'long')
-                utils.log('OPEN SHORT')
-                tp = float(self.ohlc[-1]['open']) * (1 - float(self.params['tp']) / 100)
-                sl = float(self.ohlc[-1]['open']) * (1 + float(self.params['sl']) / 100)
-                utils.open_pos(self.exchange, self.user, self.params, 'short', tp, sl, float(self.ohlc[-1]['open']))
-        except Exception as e:
-            utils.log('ERROR: ' + str(e))
+        if self.longCondition:
+            self.tp = float(self.ohlc[-1]['open']) * (1 + float(self.params['tp']) / 100)
+            self.sl = float(self.ohlc[-1]['open']) * (1 - float(self.params['sl']) / 100)
+        if self.shortCondition:
+            self.tp = float(self.ohlc[-1]['open']) * (1 - float(self.params['tp']) / 100)
+            self.sl = float(self.ohlc[-1]['open']) * (1 + float(self.params['sl']) / 100)
+        self.trade_init()
         return
