@@ -4,3 +4,5 @@ algo.db
 algo_test.db
 .idea/*
 log.txt
+hypespot.py
+last_token.txt

@@ -1,22 +1,24 @@
 import utils
-from notifyer import Notifyer
+
 class Algo:
     def __init__(self, exchange,user,  ohlc, conf):
         self.exchange = exchange
         self.user = user
         self.ohlc = ohlc
+        self.id = conf['id']
         self.coin = conf['coin']
         self.params = conf['param']
-        self.start_balance = conf['start_balance']
+        self.balance = conf['max_balance']
         self.max_drawdown = conf['max_drawdown']
         self.params['coin'] = self.coin
 
     def check_drawdown(self):
         dep = float(self.exchange.get_balance())
-        notifyer = Notifyer(self.user["tg_chat_id"])
-        if self.start_balance - (self.start_balance /100 * self.max_drawdown) > dep:
-            utils.log(f'Drawdown check: {dep} < {self.start_balance}  max drawdown: {self.max_drawdown}')
-            notifyer.send_error(utils.extract_log(), "Drawdown check")
+        if dep > self.balance:
+            utils.update_max_balance(self.id, dep, 1)
+
+        if self.balance - (self.balance /100 * self.max_drawdown) > dep:
+            utils.log(f'Drawdown check: {dep} < {self.balance}  max drawdown: {self.max_drawdown}')
             return False
         return True
     def v1(self):
@@ -34,9 +36,7 @@ class Algo:
                 have_long = True
             else:
                 have_short = True
-        if longCondition or shortCondition:
-            if not self.check_drawdown():
-                return False
+
         try:
             if longCondition and not have_long:
                 if have_short:
@@ -70,16 +70,13 @@ class Algo:
         have_long = False
         have_short = False
         positions = self.exchange.get_open_positions(self.coin)
-
         if len(positions) > 0:
             position = positions[0]
             if position['side'] == 'Buy':
                 have_long = True
             else:
                 have_short = True
-        if longCondition or shortCondition:
-            if not self.check_drawdown():
-                return False
+
         try:
             if longCondition and not have_long:
                 if have_short:

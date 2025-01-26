@@ -29,6 +29,10 @@ def extract_log():
         f.write(f'\n'+str(tmp_log))
     return tmp_log
 
+
+def update_max_balance(config_id, balance, enabled=1):
+    db.execute_query(f'update configs set max_balance = {balance} where id = {config_id} and enabled = {enabled}')
+
 def find_configs(tf: str) -> list:
     res = db.execute_query(f'select * from configs where tf = "{tf}" and enabled = 1')
     configs = []
@@ -43,6 +47,7 @@ def find_configs(tf: str) -> list:
             "version": row[6],
             "param": json.loads(row[7]),
             'start_balance': row[8],
+            'max_balance': row[10],
         }
         configs.append(config)
     return configs
@@ -95,10 +100,10 @@ def get_ohlc(conf):
     response = requests.get(f'https://fapi.binance.com/fapi/v1/klines?symbol={conf["coin"]}USDT&interval={interval}&limit={limit}')
     kline = response.json()
     for line in kline:
-        data = {"timestamp": line[0], "open": line[1],
-                "high": line[2],
-                "low": line[3],
-                "close": line[4]}
+        data = {"timestamp": line[0], "open": float(line[1]),
+                "high": float(line[2]),
+                "low": float(line[3]),
+                "close": float(line[4])}
         ohlc.append(data)
     ohlc_cache[cache_key] = ohlc
     return ohlc

@@ -4,8 +4,8 @@ import sys
 import os
 import time
 import utils
-import algo
-
+from algo import Algo
+from notifyer import Notifyer
 from datetime import datetime
 
 if len(sys.argv) == 1:
@@ -31,12 +31,16 @@ for conf in configs:
 
         ohlc = utils.get_ohlc(conf)
         exchange = utils.get_exchange(account)
-        algo = algo.Algo(exchange, user, ohlc,  conf)
+        algo = Algo(exchange, user, ohlc,  conf)
+        if not algo.check_drawdown():
+            notifyer = Notifyer(user["tg_chat_id"])
+            notifyer.send_error(utils.extract_log(), "Drawdown check")
+            continue
         if conf['version'] == 1:
             algo.v1()
+        elif conf['version'] == 2:
+            algo.v2()
 
-        utils.extract_log()
-        os._exit(0)
 
     except Exception as e:
         utils.log('ERROR: '+str(e))
