@@ -38,6 +38,14 @@ class Algo:
                 self.have_short = True
 
     def trade_init(self):
+
+        if self.longCondition and self.tp == 0 and self.sl == 0:
+            self.tp = float(self.ohlc[-1]['open']) * (1 + float(self.params['tp']) / 100)
+            self.sl = float(self.ohlc[-1]['open']) * (1 - float(self.params['sl']) / 100)
+        if self.shortCondition and self.tp == 0 and self.sl == 0:
+            self.tp = float(self.ohlc[-1]['open']) * (1 - float(self.params['tp']) / 100)
+            self.sl = float(self.ohlc[-1]['open']) * (1 + float(self.params['sl']) / 100)
+
         try:
             self.check_position()
             if self.longCondition and not self.have_long:
@@ -64,12 +72,6 @@ class Algo:
         self.longCondition = rsi[-2] < self.params['oversell']
         self.shortCondition = rsi[-2] > self.params['overbuy']
 
-        if self.longCondition:
-            self.tp = float(self.ohlc[-1]['open']) * (1 + float(self.params['tp']) / 100)
-            self.sl = float(self.ohlc[-1]['open']) * (1 - float(self.params['sl']) / 100)
-        if self.shortCondition:
-            self.tp = float(self.ohlc[-1]['open']) * (1 - float(self.params['tp']) / 100)
-            self.sl = float(self.ohlc[-1]['open']) * (1 + float(self.params['sl']) / 100)
         self.trade_init()
 
         return
@@ -101,9 +103,6 @@ class Algo:
         utils.log(f'ema: {ema[-2]}')
         self.longCondition = self.ohlc[-1]['open'] > ema[-2] and two_day_rsi_avg < 33
 
-        if self.longCondition:
-            self.tp = float(self.ohlc[-1]['open']) * (1 + float(self.params['tp']) / 100)
-            self.sl = float(self.ohlc[-1]['open']) * (1 - float(self.params['sl']) / 100)
         self.trade_init()
         return
 
@@ -117,12 +116,6 @@ class Algo:
         self.longCondition = crossover[-1]
         self.shortCondition = crossunder[-1]
 
-        if self.longCondition:
-            self.tp = float(self.ohlc[-1]['open']) * (1 + float(self.params['tp']) / 100)
-            self.sl = float(self.ohlc[-1]['open']) * (1 - float(self.params['sl']) / 100)
-        if self.shortCondition:
-            self.tp = float(self.ohlc[-1]['open']) * (1 - float(self.params['tp']) / 100)
-            self.sl = float(self.ohlc[-1]['open']) * (1 + float(self.params['sl']) / 100)
         self.trade_init()
         return
 
@@ -138,11 +131,5 @@ class Algo:
         self.longCondition = crossover[-2]
         self.shortCondition = crossunder[-2]
 
-        if self.longCondition:
-            self.tp = float(self.ohlc[-1]['open']) * (1 + float(self.params['tp']) / 100)
-            self.sl = float(self.ohlc[-1]['open']) * (1 - float(self.params['sl']) / 100)
-        if self.shortCondition:
-            self.tp = float(self.ohlc[-1]['open']) * (1 - float(self.params['tp']) / 100)
-            self.sl = float(self.ohlc[-1]['open']) * (1 + float(self.params['sl']) / 100)
         self.trade_init()
         return
