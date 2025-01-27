@@ -7,8 +7,11 @@ class Algo:
         self.ohlc = ohlc
         self.id = conf['id']
         self.coin = conf['coin']
+
         self.params = conf['param']
-        self.balance = conf['max_balance']
+        self.balance = 0
+        if conf['max_balance'] is not None:
+            self.balance = conf['max_balance']
         self.max_drawdown = conf['max_drawdown']
         self.params['coin'] = self.coin
         self.have_long = False
@@ -69,8 +72,8 @@ class Algo:
         utils.log('run v1')
         rsi = utils.calculate_rsi(self.ohlc, self.params['rsi_length'])
         utils.log(f'rsi: {rsi[-2]}')
-        self.longCondition = rsi[-2] < self.params['oversell']
-        self.shortCondition = rsi[-2] > self.params['overbuy']
+        self.longCondition = rsi[-2] < float(self.params['oversell'])
+        self.shortCondition = rsi[-2] > float(self.params['overbuy'])
 
         self.trade_init()
 
@@ -80,8 +83,8 @@ class Algo:
         utils.log('run v2')
         rsi = utils.calculate_rsi(self.ohlc, self.params['rsi_length'])
         utils.log(f'rsi: {rsi[-2]}')
-        self.longCondition = rsi[-2] < self.params['oversell']
-        self.shortCondition = rsi[-2] > self.params['overbuy']
+        self.longCondition = rsi[-2] < float(self.params['oversell'])
+        self.shortCondition = rsi[-2] > float(self.params['overbuy'])
         candlesize = self.ohlc[-3]['high'] - self.ohlc[-3]['low']
 
         if self.longCondition:
@@ -111,10 +114,30 @@ class Algo:
         rsi = utils.calculate_rsi(self.ohlc, self.params['rsi_length'])
 
         utils.log(f'Rsi: {rsi[-2]}')
-        crossover = utils.calculate_crossover([rsi[-3], rsi[-2]], [self.params['oversell'], self.params['oversell']])
-        crossunder = utils.calculate_crossunder([rsi[-3], rsi[-2]], [self.params['overbuy'], self.params['overbuy']])
+        crossover = utils.calculate_crossover([rsi[-3], rsi[-2]], [float(self.params['oversell']), float(self.params['oversell'])])
+        crossunder = utils.calculate_crossunder([rsi[-3], rsi[-2]], [float(self.params['overbuy']), float(self.params['overbuy'])])
         self.longCondition = crossover[-1]
         self.shortCondition = crossunder[-1]
+
+        self.trade_init()
+        return
+
+    def v6(self):
+        utils.log('run v6')
+
+        rsi = utils.calculate_rsi(self.ohlc, self.params['rsi_length'])
+
+        utils.log(f'Rsi: {rsi[-2]}')
+        crossover = utils.calculate_crossover([rsi[-3], rsi[-2]], [float(self.params['oversell']), float(self.params['oversell'])])
+        crossunder = utils.calculate_crossunder([rsi[-3], rsi[-2]], [float(self.params['overbuy']), float(self.params['overbuy'])])
+        self.longCondition = crossover[-1]
+        self.shortCondition = crossunder[-1]
+        if self.longCondition:
+            self.sl = self.ohlc[-2]['low']
+            self.tp = float(self.ohlc[-1]['open']) * (1 + float(self.params['tp']) / 100)
+        if self.shortCondition:
+            self.sl = self.ohlc[-1]['high']
+            self.tp = float(self.ohlc[-1]['open']) * (1 - float(self.params['tp']) / 100)
 
         self.trade_init()
         return

@@ -36,15 +36,17 @@ for conf in configs:
             notifyer = Notifyer(user["tg_chat_id"])
             notifyer.send_error(utils.extract_log(), "Drawdown check")
             continue
-        if conf['version'] == 1:
+        if conf['version_name'] == 'v1':
             algo.v1()
-        elif conf['version'] == 2:
+        elif conf['version_name'] == 'v2':
             algo.v2()
-        elif conf['version'] == 3:
+        elif conf['version_name'] == 'v3':
             algo.v3()
-        elif conf['version'] == 5:
+        elif conf['version_name'] == 'v5':
             algo.v5()
-        elif conf['version'] == 10:
+        elif conf['version_name'] == 'v6':
+            algo.v6()
+        elif conf['version_name'] == 'v10':
             algo.v10()
 
 

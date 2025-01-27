@@ -37,6 +37,7 @@ def find_configs(tf: str) -> list:
     res = db.execute_query(f'select * from configs where tf = "{tf}" and enabled = 1')
     configs = []
     for row in res:
+        version = db.execute_query(f'select name from versions where id = "{row[6]}"')[0]
         config = {
             "id": row[0],
             "user_id": row[1],
@@ -45,6 +46,7 @@ def find_configs(tf: str) -> list:
             "tf": row[4],
             "max_drawdown": row[5],
             "version": row[6],
+            "version_name": version[0],
             "param": json.loads(row[7]),
             'start_balance': row[8],
             'max_balance': row[10],
@@ -109,6 +111,7 @@ def get_ohlc(conf):
     return ohlc
 
 def calculate_ema(ohlc, period):
+    period = int(period)
     prices = []
     for line in ohlc:
         prices.append(line["close"])
@@ -136,6 +139,7 @@ def calculate_crossunder(v_fastEMA, v_slowEMA):
     return bearSignal
 def calculate_rsi(ohlc, period):
     prices = []
+    period = int(period)
     for line in ohlc:
         prices.append(line["close"])
 
