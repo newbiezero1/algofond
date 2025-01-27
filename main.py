@@ -46,6 +46,8 @@ for conf in configs:
             algo.v5()
         elif conf['version_name'] == 'v6':
             algo.v6()
+        elif conf['version_name'] == 'v7':
+            algo.v7()
         elif conf['version_name'] == 'v10':
             algo.v10()
 
