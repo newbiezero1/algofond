@@ -159,6 +159,25 @@ class Algo:
         self.trade_init()
         return
 
+    def v8(self):
+        utils.log('run v8')
+        trendEma = utils.calculate_ema(self.ohlc, self.params['filter_ema'])
+        fastEma = utils.calculate_ema(self.ohlc, self.params['fast_ema'])
+        slowEma = utils.calculate_ema(self.ohlc, self.params['slow_ema'])
+        rsi = utils.calculate_rsi(self.ohlc, self.params['rsi_length'])
+        crossover = utils.calculate_crossover(fastEma, slowEma)
+        crossunder = utils.calculate_crossunder(fastEma, slowEma)
+
+        utils.log(f'Trend Ema: {trendEma[-2]}')
+        utils.log(f'Fast Ema: {fastEma[-2]}')
+        utils.log(f'Slow Ema: {slowEma[-2]}')
+        utils.log(f'Rsi: {rsi[-2]}')
+        self.longCondition = crossover[-2]  and self.ohlc[-1]['open'] > trendEma[-2] and rsi[-2] < float(self.params['overbuy'])
+        self.shortCondition = crossunder[-2]  and self.ohlc[-1]['open'] < trendEma[-2] and rsi[-2] > float(self.params['oversell'])
+
+        self.trade_init()
+        return
+
     def v10(self):
         utils.log('run v10')
         trendEma = utils.calculate_ema(self.ohlc, self.params['filter_ema'])

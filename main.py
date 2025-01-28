@@ -48,6 +48,8 @@ for conf in configs:
             algo.v6()
         elif conf['version_name'] == 'v7':
             algo.v7()
+        elif conf['version_name'] == 'v8':
+            algo.v8()
         elif conf['version_name'] == 'v10':
             algo.v10()
 
