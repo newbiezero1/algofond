@@ -224,3 +224,20 @@ class Algo:
 
         self.trade_init()
         return
+
+    def v15(self):
+        utils.log('run v15')
+        trendEma = utils.calculate_ema(self.ohlc, self.params['filter_ema'])
+        slowEma = utils.calculate_ema(self.ohlc, self.params['slow_ema'])
+        crossover = utils.calculate_crossover([self.ohlc[-3]['close'], self.ohlc[-2]['close']], [slowEma[-2], slowEma[-2]])
+        crossunder = utils.calculate_crossunder([self.ohlc[-3]['close'], self.ohlc[-2]['close']]  , [slowEma[-2], slowEma[-2]])
+
+        utils.log(f'Trend Ema: {trendEma[-2]}')
+        utils.log(f'Slow Ema: {slowEma[-2]}')
+        utils.log(f'Price: {self.ohlc[-1]["open"]}')
+
+        self.longCondition = crossover[-1] and self.ohlc[-1]['open'] < trendEma[-2]
+        self.shortCondition = crossunder[-1] and self.ohlc[-1]['open'] > trendEma[-2]
+
+        self.trade_init()
+        return
