@@ -178,6 +178,21 @@ class Algo:
         self.trade_init()
         return
 
+    def v9(self):
+        utils.log('run v9')
+        trendEma = utils.calculate_ema(self.ohlc, self.params['filter_ema'])
+        crossover = utils.calculate_crossover([self.ohlc[-3]['close'], self.ohlc[-2]['close']], [trendEma[-2], trendEma[-2]])
+        crossunder = utils.calculate_crossunder([self.ohlc[-3]['close'], self.ohlc[-2]['close']]  , [trendEma[-2], trendEma[-2]])
+
+        utils.log(f'Trend Ema: {trendEma[-2]}')
+        utils.log(f'Price: {self.ohlc[-1]["open"]}')
+
+        self.longCondition = crossover[-1]
+        self.shortCondition = crossunder[-1]
+
+        self.trade_init()
+        return
+
     def v10(self):
         utils.log('run v10')
         trendEma = utils.calculate_ema(self.ohlc, self.params['filter_ema'])
