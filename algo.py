@@ -64,7 +64,11 @@ class Algo:
                     utils.log('CLOSE LONG for SHORT')
                     utils.close_pos(self.exchange, self.user, self.coin, 'long')
                 utils.log('OPEN SHORT')
-                utils.open_pos(self.exchange, self.user, self.params, 'short', tp, sl, float(self.ohlc[-1]['open']))
+                utils.open_pos(self.exchange, self.user, self.params, 'short', self.tp, self.sl, float(self.ohlc[-1]['open']))
+
+            utils.log(f'Avg price: {self.ohlc[-1]["open"]}')
+            utils.log(f'TP: {self.tp}')
+            utils.log(f'SL: {self.sl}')
         except Exception as e:
             utils.log('ERROR: ' + str(e))
 
