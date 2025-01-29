@@ -51,6 +51,9 @@ class Algo:
 
         try:
             self.check_position()
+            utils.log(f'Avg price: {self.ohlc[-1]["open"]}')
+            utils.log(f'TP: {self.tp}')
+            utils.log(f'SL: {self.sl}')
             if self.longCondition and not self.have_long:
                 if self.have_short:
                     utils.log('CLOSE SHORT for LONG')
@@ -66,9 +69,6 @@ class Algo:
                 utils.log('OPEN SHORT')
                 utils.open_pos(self.exchange, self.user, self.params, 'short', self.tp, self.sl, float(self.ohlc[-1]['open']))
 
-            utils.log(f'Avg price: {self.ohlc[-1]["open"]}')
-            utils.log(f'TP: {self.tp}')
-            utils.log(f'SL: {self.sl}')
         except Exception as e:
             utils.log('ERROR: ' + str(e))
 
