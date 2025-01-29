@@ -42,6 +42,8 @@ for conf in configs:
             algo.v2()
         elif conf['version_name'] == 'v3':
             algo.v3()
+        elif conf['version_name'] == 'v4':
+            algo.v4()
         elif conf['version_name'] == 'v5':
             algo.v5()
         elif conf['version_name'] == 'v6':
@@ -56,10 +58,8 @@ for conf in configs:
             algo.v10()
         elif conf['version_name'] == 'v11':
             algo.v11()
-        elif conf['version_name'] == 'v15':
-            algo.v15()
-        elif conf['version_name'] == 'v16':
-            algo.v16()
+        elif conf['version_name'] == 'v12':
+            algo.v12()
 
 
     except Exception as e:
