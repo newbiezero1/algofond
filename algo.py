@@ -241,3 +241,21 @@ class Algo:
 
         self.trade_init()
         return
+
+    def v16(self):
+        utils.log('run v16')
+        trendEma = utils.calculate_ema(self.ohlc, self.params['filter_ema'])
+        slowEma = utils.calculate_ema(self.ohlc, self.params['slow_ema'])
+        crossover = utils.calculate_crossover(slowEma, trendEma)
+        crossunder = utils.calculate_crossunder(slowEma, trendEma)
+        filterEMAKoridorPlus = trendEma[-2] + (trendEma[-2] / 100 * self.params['filterEmaKoridor'])
+        filterEMAKoridorMinus = trendEma[-2] - (trendEma[-2] / 100 * self.params['filterEmaKoridor'])
+
+        utils.log(f'Trend Ema: {trendEma[-2]}')
+        utils.log(f'Slow Ema: {slowEma[-2]}')
+        utils.log(f'Koridor filter Ema: {filterEMAKoridorMinus} - {filterEMAKoridorPlus}')
+        self.longCondition = crossover[-2] and not (self.ohlc[-2]['close'] < filterEMAKoridorPlus and self.ohlc[-2]['close'] > filterEMAKoridorMinus)
+        self.shortCondition = crossunder[-2] and not (self.ohlc[-2]['close'] < filterEMAKoridorPlus and self.ohlc[-2]['close'] > filterEMAKoridorMinus)
+
+        self.trade_init()
+        return

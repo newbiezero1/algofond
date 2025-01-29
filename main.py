@@ -58,6 +58,8 @@ for conf in configs:
             algo.v11()
         elif conf['version_name'] == 'v15':
             algo.v15()
+        elif conf['version_name'] == 'v16':
+            algo.v16()
 
 
     except Exception as e:
