@@ -105,7 +105,7 @@ if (!$configs) {
 // -------------------------------------------------------------------
 $insertSql = "
 INSERT OR IGNORE INTO trade_history
-(config_id, symbol, side, qty, closed_pnl, avg_entry_price, avg_exit_price,
+(account_id, symbol, side, qty, closed_pnl, avg_entry_price, avg_exit_price,
  created_time, updated_time, leverage, exec_type, fill_count)
 VALUES
 (:config_id, :symbol, :side, :qty, :closed_pnl, :avg_entry_price, :avg_exit_price,
