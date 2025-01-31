@@ -84,6 +84,7 @@ $sql = "
     SELECT c.id AS config_id,
            c.coin,
            c.tf,
+           a.id AS acc_id,
            a.api_key,
            a.api_secret,
            a.exchange
@@ -126,7 +127,7 @@ foreach ($configs as $cfg) {
         $countAdded = 0;
         foreach ($trades as $t) {
             $insertStmt->execute([
-                ':config_id'       => $cfg['config_id'],
+                ':config_id'       => $cfg['acc_id'],
                 ':symbol'          => $t['symbol'],
                 ':side'            => $t['side'],
                 ':qty'             => $t['qty'],
